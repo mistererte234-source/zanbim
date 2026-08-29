@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle, Target, ArrowRight, BookOpen, ChevronDown, ChevronUp, HelpCircle, ShieldAlert, Briefcase, Landmark, Award, GraduationCap } from "lucide-react";
+import { AlertTriangle, CheckCircle, Target, ArrowRight, BookOpen, ChevronDown, ChevronUp, HelpCircle, ShieldAlert, Briefcase, Landmark, Award, GraduationCap, School, TrendingUp, Zap } from "lucide-react";
 import { Track } from "@/lib/types";
 
 function ReportContent() {
@@ -10,6 +10,9 @@ function ReportContent() {
   const router = useRouter();
   const [reportData, setReportData] = useState<any>(null);
   const [targetName, setTargetName] = useState<string>("");
+  const [targetScore, setTargetScore] = useState<number>(700);
+  const [targetPtnName, setTargetPtnName] = useState<string>("");
+  const [targetMajorName, setTargetMajorName] = useState<string>("");
   const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -17,7 +20,14 @@ function ReportContent() {
     const rawLocal = localStorage.getItem("zanbim_diagnosis_result");
     const raw = rawSession || rawLocal;
     const savedTarget = localStorage.getItem("zanbim_target") || "Target Belum Diatur";
+    const savedTargetScore = Number(localStorage.getItem("zanbim_target_score") || "700");
+    const savedPtn = localStorage.getItem("zanbim_ptn") || "Universitas Indonesia (UI)";
+    const savedMajor = localStorage.getItem("zanbim_major") || "Pendidikan Dokter";
+
     setTargetName(savedTarget);
+    setTargetScore(savedTargetScore);
+    setTargetPtnName(savedPtn);
+    setTargetMajorName(savedMajor);
 
     if (raw) {
       try {
@@ -48,11 +58,36 @@ function ReportContent() {
     );
   }
 
-  const { track, utbkIndex, cpnsResult, iqResult, dewanResult, dosenResult, topGaps, itemAnalysis } = reportData;
+  const { track, utbkIndex = 620, cpnsResult, iqResult, dewanResult, dosenResult, topGaps, itemAnalysis } = reportData;
 
   const toggleAccordion = (idx: number) => {
     setOpenItemIndex(openItemIndex === idx ? null : idx);
   };
+
+  // UTBK Target Score Delta Calculation
+  const scoreDelta = utbkIndex - targetScore;
+  let utbkChanceStatus = {
+    label: "Perlu Akselerasi Misi Drill",
+    color: "text-rose-400",
+    bg: "bg-rose-500/20 border-rose-500/40",
+    desc: `Skor Anda masih berjarak ${Math.abs(scoreDelta)} poin dari standar passing score target. Fokus tutup 3 skill gap di bawah untuk melompat ke safe zone.`,
+  };
+
+  if (scoreDelta >= 0) {
+    utbkChanceStatus = {
+      label: "Peluang Sangat Aman (Safe Zone)",
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/20 border-emerald-500/40",
+      desc: `Skor Anda melampaui standar kelulusan target (+${scoreDelta} poin). Pertahankan konsistensi dengan latihan varian isomorfik.`,
+    };
+  } else if (scoreDelta >= -35) {
+    utbkChanceStatus = {
+      label: "Peluang Kompetitif (Competitive Zone)",
+      color: "text-amber-400",
+      bg: "bg-amber-500/20 border-amber-500/40",
+      desc: `Hanya berjarak ${Math.abs(scoreDelta)} poin dari ambang batas aman! Kerjakan 2-3 Misi Drill harian untuk menembus passing grade.`,
+    };
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-4 sm:py-8 px-1 sm:px-4 flex flex-col gap-6 sm:gap-8">
@@ -78,17 +113,50 @@ function ReportContent() {
         </button>
       </div>
 
-      {/* TRACK 1: UTBK REPORT */}
+      {/* TRACK 1: UTBK REPORT (WITH PTN PASSING SCORE BENCHMARK) */}
       {track === "UTBK" && (
-        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-zinc-800 text-center flex flex-col items-center gap-2.5 relative overflow-hidden shadow-glow">
-          <div className="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
-          <span className="text-xs text-zinc-400 font-medium">Estimasi Indeks Kemampuan UTBK</span>
-          <div className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 font-mono tracking-tight">
-            {utbkIndex} <span className="text-lg sm:text-xl text-zinc-500 font-normal">/ 800</span>
+        <div className="flex flex-col gap-4">
+          
+          {/* UTBK Score Card */}
+          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-zinc-800 text-center flex flex-col items-center gap-3 relative overflow-hidden shadow-glow">
+            <div className="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
+            <span className="text-xs text-zinc-400 font-medium">Estimasi Indeks Kemampuan UTBK SNBT</span>
+            <div className="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 font-mono tracking-tight">
+              {utbkIndex} <span className="text-lg sm:text-xl text-zinc-500 font-normal">/ 800</span>
+            </div>
+            
+            {/* Target vs Current Comparison */}
+            <div className="w-full max-w-lg bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800 flex flex-col gap-3 mt-2">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-zinc-400">Skor Anda: <strong className="text-white">{utbkIndex}</strong></span>
+                <span className="text-indigo-300">Standar Kelulusan: <strong>{targetScore}</strong></span>
+              </div>
+
+              {/* Visual Progress Bar */}
+              <div className="w-full bg-zinc-950 h-3 rounded-full overflow-hidden p-0.5 border border-zinc-800 relative">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    scoreDelta >= 0 ? "bg-gradient-to-r from-emerald-500 to-cyan-400" : "bg-gradient-to-r from-rose-500 via-amber-500 to-indigo-500"
+                  }`}
+                  style={{ width: `${Math.min(100, (utbkIndex / targetScore) * 100)}%` }}
+                />
+              </div>
+
+              {/* Status Badge */}
+              <div className={`p-3 rounded-xl border text-xs flex flex-col gap-1 text-left ${utbkChanceStatus.bg}`}>
+                <div className="flex items-center justify-between">
+                  <span className={`font-bold ${utbkChanceStatus.color} flex items-center gap-1.5`}>
+                    <TrendingUp className="w-3.5 h-3.5" /> {utbkChanceStatus.label}
+                  </span>
+                  <span className="font-mono font-bold text-white">
+                    {scoreDelta >= 0 ? `+${scoreDelta}` : `${scoreDelta}`} Poin
+                  </span>
+                </div>
+                <p className="text-zinc-300 leading-relaxed mt-0.5">{utbkChanceStatus.desc}</p>
+              </div>
+            </div>
+
           </div>
-          <p className="text-xs text-zinc-400 max-w-md leading-relaxed">
-            Skor dihitung berdasarkan pembobotan tingkat kesulitan soal (Diff 1: 1.0, Diff 2: 1.25, Diff 3: 1.6).
-          </p>
         </div>
       )}
 
@@ -261,13 +329,11 @@ function ReportContent() {
 
                 {openItemIndex === idx && (
                   <div className="p-3.5 sm:p-4 border-t border-zinc-800 bg-zinc-950/80 text-xs flex flex-col gap-2.5">
-                    {/* Concept */}
                     <div>
                       <span className="font-bold text-indigo-400 block mb-1">💡 Konsep Utama:</span>
                       <p className="text-zinc-300 leading-relaxed bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">{item.concept}</p>
                     </div>
 
-                    {/* Solution Steps */}
                     {item.steps && item.steps.length > 0 && (
                       <div>
                         <span className="font-bold text-cyan-400 block mb-1">📝 Langkah Cara Penyelesaian:</span>
@@ -279,7 +345,6 @@ function ReportContent() {
                       </div>
                     )}
 
-                    {/* Trap Explanation */}
                     {item.trapExplanation && (
                       <div>
                         <span className="font-bold text-amber-400 block mb-1">⚠️ Penjelasan Jebakan Opsi {item.userSelected}:</span>
