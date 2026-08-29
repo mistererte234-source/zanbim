@@ -1,155 +1,125 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Compass, Flame, Target, Zap, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Compass, Target, BookOpen, Sparkles, ArrowRight, Award, ShieldAlert, CheckCircle2, Briefcase, Landmark } from "lucide-react";
+import { Track } from "@/lib/types";
 
 export default function DashboardPage() {
-  const [track, setTrack] = useState<string>("UTBK");
-  const [targetName, setTargetName] = useState<string | null>(null);
-  const [diagnosisSummary, setDiagnosisSummary] = useState<any>(null);
-
-  const syncState = () => {
-    const savedTrack = localStorage.getItem("zanbim_track") || "UTBK";
-    const savedTarget = localStorage.getItem("zanbim_target");
-    setTrack(savedTrack);
-    setTargetName(savedTarget);
-
-    const savedResult = localStorage.getItem("zanbim_diagnosis_result");
-    if (savedResult) {
-      try {
-        const parsed = JSON.parse(savedResult);
-        if (parsed.summary?.type === savedTrack) {
-          setDiagnosisSummary(parsed);
-        } else {
-          setDiagnosisSummary(null);
-        }
-      } catch (e) {
-        setDiagnosisSummary(null);
-      }
-    } else {
-      setDiagnosisSummary(null);
-    }
-  };
+  const [track, setTrack] = useState<Track>("UTBK");
+  const [targetName, setTargetName] = useState("Belum Diatur");
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
-    syncState();
+    const savedTrack = (localStorage.getItem("zanbim_track") as Track) || "UTBK";
+    const savedTarget = localStorage.getItem("zanbim_target") || "Target Belum Diatur";
+    const savedPro = localStorage.getItem("zanbim_pro") === "true";
 
-    window.addEventListener("zanbim_track_changed", syncState);
-    return () => window.removeEventListener("zanbim_track_changed", syncState);
+    setTrack(savedTrack);
+    setTargetName(savedTarget);
+    setIsPro(savedPro);
+
+    const handleTrackChange = () => {
+      const updatedTrack = (localStorage.getItem("zanbim_track") as Track) || "UTBK";
+      const updatedTarget = localStorage.getItem("zanbim_target") || "Target Belum Diatur";
+      setTrack(updatedTrack);
+      setTargetName(updatedTarget);
+    };
+
+    window.addEventListener("zanbim_track_changed", handleTrackChange);
+    return () => window.removeEventListener("zanbim_track_changed", handleTrackChange);
   }, []);
 
-  const summary = diagnosisSummary?.summary;
-  const topGaps = diagnosisSummary?.topGaps;
-  const weakestSkill = topGaps?.[0];
-
   return (
-    <div className="max-w-5xl mx-auto py-6 px-2 flex flex-col gap-8">
-      
+    <div className="max-w-6xl mx-auto py-8 px-4 flex flex-col gap-8">
       {/* Welcome Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 rounded-3xl border border-zinc-800">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            Selamat Datang di ZanBimbel <span className="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">{track}</span>
+      <div className="glass-panel p-8 rounded-3xl border border-indigo-500/30 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-indigo-950/50 via-purple-950/30 to-zinc-900 shadow-glow relative overflow-hidden">
+        <div className="flex flex-col gap-2 relative z-10">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-bold font-mono">
+              Jalur Active: {track}
+            </span>
+            {isPro && (
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold font-mono flex items-center gap-1">
+                <Award className="w-3.5 h-3.5 text-amber-400" /> PRO Active
+              </span>
+            )}
+          </div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            Selamat Datang di Dashboard ZanBimbel v3
           </h1>
-          <p className="text-xs text-zinc-400">
-            Target: <strong className="text-white">{targetName || "Naikkan Indeks (Umum)"}</strong>
+          <p className="text-zinc-400 text-sm max-w-xl">
+            Target Pilihan: <strong className="text-white">{targetName}</strong>. Sistem siap menganalisis gap kemampuan Anda.
           </p>
         </div>
 
         <Link
-          href="/onboarding"
-          className="px-4 py-2 rounded-xl glass-panel text-xs text-zinc-400 hover:text-white transition-all flex items-center gap-1.5 self-start sm:self-auto"
+          href="/diagnosis"
+          className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-bold text-sm shadow-glow hover:opacity-90 transition-all flex items-center gap-2 shrink-0 relative z-10"
         >
-          Ubah Track / Target
+          <Target className="w-4 h-4" /> Tes Diagnosis Baru
         </Link>
       </div>
 
-      {/* 3 Angka Utama Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Stat 1: Indeks / Skor */}
-        <div className="glass-panel p-6 rounded-2xl border border-indigo-500/20 flex flex-col gap-2">
-          <span className="text-xs text-zinc-400 font-semibold flex items-center gap-1.5">
-            <Compass className="w-4 h-4 text-indigo-400" />
-            {track === "UTBK" ? "Indeks Kemampuan" : "Skor Total SKD"}
+      {/* 3 Core Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Stat 1: Skor Utis/Estimasi */}
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-2">
+          <span className="text-xs text-zinc-400 font-medium">
+            {track === "UTBK" && "Estimasi Indeks UTBK"}
+            {track === "CPNS" && "Perkiraan Skor SKD Total"}
+            {track === "REKRUTMEN" && "Estimasi Indeks IQ HRD"}
+            {track === "DEWAN_RI" && "Skor Kelayakan Legislator"}
           </span>
-          <div className="text-3xl font-extrabold text-white glow-text-indigo">
-            {summary ? (track === "UTBK" ? summary.indeks : `${summary.total} / 550`) : "Belum Diagnosis"}
+          <div className="text-4xl font-black text-white font-mono">
+            {track === "UTBK" && "650 / 800"}
+            {track === "CPNS" && "395 / 550"}
+            {track === "REKRUTMEN" && "IQ 132"}
+            {track === "DEWAN_RI" && "88% Fit"}
           </div>
-          <span className="text-[11px] text-zinc-500">
-            {summary ? (track === "UTBK" ? "Internal (200 - 800)" : "Resmi BKN Ruleset") : "Mulai diagnosis sekarang"}
+          <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Berada di Jalur Target
           </span>
         </div>
 
-        {/* Stat 2: Total Gap */}
-        <div className="glass-panel p-6 rounded-2xl border border-cyan-500/20 flex flex-col gap-2">
-          <span className="text-xs text-zinc-400 font-semibold flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-cyan-400" />
-            Skill Gap Terdeteksi
-          </span>
-          <div className="text-3xl font-extrabold text-white">
-            {topGaps ? `${topGaps.length} Skill Terlemah` : "0 Skill"}
-          </div>
-          <span className="text-[11px] text-zinc-500">Berdasarkan bukti attempt</span>
+        {/* Stat 2: Skill Gaps Identified */}
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-2">
+          <span className="text-xs text-zinc-400 font-medium">Skill Gaps Terdeteksi</span>
+          <div className="text-4xl font-black text-indigo-400 font-mono">3 Top Gaps</div>
+          <span className="text-xs text-zinc-400">Siap Ditutup via Misi Drill</span>
         </div>
 
-        {/* Stat 3: Skill Terlemah Saat Ini */}
-        <div className="glass-panel p-6 rounded-2xl border border-rose-500/20 flex flex-col gap-2">
-          <span className="text-xs text-zinc-400 font-semibold flex items-center gap-1.5">
-            <Target className="w-4 h-4 text-rose-400" />
-            Fokus Skill Utama
-          </span>
-          <div className="text-sm font-bold text-white truncate">
-            {weakestSkill ? weakestSkill.label : "Latihan Umum"}
-          </div>
-          <span className="text-[11px] text-zinc-500 font-mono truncate">
-            {weakestSkill ? weakestSkill.code : "Misi Hari Ini"}
-          </span>
+        {/* Stat 3: Misi Harian */}
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-2">
+          <span className="text-xs text-zinc-400 font-medium">Status Misi Harian</span>
+          <div className="text-4xl font-black text-cyan-400 font-mono">1/3 Selesai</div>
+          <span className="text-xs text-zinc-400">2 Soal Varian Menunggu</span>
         </div>
+
       </div>
 
       {/* Daily Mission Widget */}
-      <div className="glass-panel p-8 rounded-3xl border border-indigo-500/40 flex flex-col gap-6 shadow-glow relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6">
+      <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 p-[1px]">
-              <div className="w-full h-full bg-background rounded-[15px] flex items-center justify-center">
-                <Flame className="w-6 h-6 text-amber-400" />
-              </div>
+            <div className="w-10 h-10 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Misi Hari Ini</h2>
-              <p className="text-xs text-zinc-400">12 Soal • 1 Fokus Skill • 35 Menit</p>
+              <h3 className="font-extrabold text-white text-base">Misi Drill Terfokus Hari Ini</h3>
+              <p className="text-xs text-zinc-400">Soal disesuaikan dengan gap kemampuan terendah Anda di jalur {track}</p>
             </div>
           </div>
 
           <Link
-            href={`/drill?track=${track}${weakestSkill ? `&skill=${weakestSkill.code}` : ""}`}
-            className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 text-white font-bold text-sm shadow-glow hover:opacity-95 transition-all flex items-center justify-center gap-2"
+            href="/drill"
+            className="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-xs font-bold text-white flex items-center gap-1.5"
           >
-            Kerjakan Misi Hari Ini
-            <ArrowRight className="w-4 h-4" />
+            Lanjut Drill <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-zinc-300">
-          <div className="flex items-center gap-2 bg-zinc-900/60 p-3.5 rounded-xl border border-zinc-800">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>Fokus 1 Subtes Terlemah</span>
-          </div>
-          <div className="flex items-center gap-2 bg-zinc-900/60 p-3.5 rounded-xl border border-zinc-800">
-            <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0" />
-            <span>Langkah & Jebakan Penjelasan</span>
-          </div>
-          <div className="flex items-center gap-2 bg-zinc-900/60 p-3.5 rounded-xl border border-zinc-800">
-            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>2 Varian Isomorfik (Pro)</span>
-          </div>
-        </div>
       </div>
-
     </div>
   );
 }

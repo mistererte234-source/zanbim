@@ -1,300 +1,281 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, XCircle, Sparkles, Zap, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { AlertTriangle, CheckCircle, Target, ArrowRight, BookOpen, ChevronDown, ChevronUp, HelpCircle, ShieldAlert, Briefcase, Landmark, Award } from "lucide-react";
+import { Track } from "@/lib/types";
 
-export default function ReportPage() {
-  const [data, setData] = useState<any>(null);
-  const [track, setTrack] = useState<string>("UTBK");
-  const [targetName, setTargetName] = useState<string | null>(null);
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+function ReportContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [reportData, setReportData] = useState<any>(null);
+  const [targetName, setTargetName] = useState<string>("");
+  const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const savedTrack = localStorage.getItem("zanbim_track") || "UTBK";
-    const savedTarget = localStorage.getItem("zanbim_target");
-    setTrack(savedTrack);
+    const raw = sessionStorage.getItem("zanbim_last_report");
+    const savedTarget = localStorage.getItem("zanbim_target") || "Target Belum Diatur";
     setTargetName(savedTarget);
 
-    const savedResult = localStorage.getItem("zanbim_diagnosis_result");
-    if (savedResult) {
+    if (raw) {
       try {
-        setData(JSON.parse(savedResult));
+        setReportData(JSON.parse(raw));
       } catch (e) {
-        console.error(e);
+        console.error("Failed to parse report data:", e);
       }
     }
   }, []);
 
-  if (!data) {
+  if (!reportData) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center flex flex-col items-center gap-4">
-        <p className="text-sm text-zinc-400">Belum ada data diagnosis. Silakan ikuti tes diagnosis terlebih dahulu.</p>
-        <Link
-          href="/diagnosis"
-          className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-glow hover:bg-indigo-500 transition-all"
+      <div className="max-w-2xl mx-auto py-16 text-center flex flex-col items-center gap-4">
+        <AlertTriangle className="w-12 h-12 text-amber-400 animate-bounce" />
+        <h2 className="text-xl font-extrabold text-white">Belum Ada Data Hasil Diagnosis</h2>
+        <p className="text-sm text-zinc-400">Silakan ikuti tes diagnosis terlebih dahulu untuk melihat hasil analisis.</p>
+        <button
+          onClick={() => router.push("/diagnosis")}
+          className="mt-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-glow hover:opacity-90"
         >
-          Mulai Tes Diagnosis
-        </Link>
+          Mulai Tes Diagnosis Sekarang
+        </button>
       </div>
     );
   }
 
-  const { summary, topGaps, itemAnalysis } = data;
-  const isCpnsBelowThreshold = summary.type === "CPNS" && summary.belowThreshold && summary.belowThreshold.length > 0;
+  const { track, utbkIndex, cpnsResult, iqResult, dewanResult, topGaps, itemAnalysis } = reportData;
 
-  const toggleExpand = (id: string) => {
-    setExpandedItem(expandedItem === id ? null : id);
+  const toggleAccordion = (idx: number) => {
+    setOpenItemIndex(openItemIndex === idx ? null : idx);
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-2 flex flex-col gap-8">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            Laporan Diagnosis {summary.type} <Sparkles className="w-5 h-5 text-indigo-400" />
-          </h1>
-          <p className="text-xs text-zinc-400">
-            Target: <strong className="text-white">{targetName || "Naikkan Indeks (Umum)"}</strong>
-          </p>
+    <div className="max-w-4xl mx-auto py-8 px-4 flex flex-col gap-8">
+      {/* Target Banner */}
+      <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-zinc-900/60 shadow-glow">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-xl">
+            🎯
+          </div>
+          <div>
+            <span className="text-xs text-indigo-300 font-semibold uppercase tracking-wider">
+              Laporan Posisi vs Target ({track})
+            </span>
+            <h2 className="text-xl font-extrabold text-white">{targetName}</h2>
+          </div>
         </div>
-
-        <Link
-          href="/dashboard"
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold text-xs shadow-glow hover:opacity-95 transition-all flex items-center gap-2 self-start sm:self-auto"
+        <button
+          onClick={() => router.push("/onboarding")}
+          className="text-xs text-zinc-400 hover:text-white underline"
         >
-          Mulai Misi Hari Ini
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+          Ubah Target
+        </button>
       </div>
 
-      {/* Prominent Red Banner for CPNS Below Threshold */}
-      {isCpnsBelowThreshold && (
-        <div className="p-4 rounded-2xl bg-rose-950/80 border-2 border-rose-500 flex items-start gap-3 shadow-glow-rose">
-          <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
-          <div className="flex flex-col gap-1">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              PERHATIAN: SKOR DI BAWAH AMBANG KELULUSAN SKD
-            </h3>
-            <p className="text-xs text-rose-200 leading-relaxed">
-              Subtes berikut masih di bawah Nilai Ambang Batas (Passing Grade):{" "}
-              <strong className="underline uppercase tracking-wide">{summary.belowThreshold.join(", ")}</strong>.
-              Sistem telah memprioritaskan skill subtes tersebut pada urutan teratas rencana latihan harian kamu!
-            </p>
+      {/* TRACK 1: UTBK REPORT */}
+      {track === "UTBK" && (
+        <div className="glass-panel p-8 rounded-3xl border border-zinc-800 text-center flex flex-col items-center gap-3 relative overflow-hidden">
+          <div className="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
+          <span className="text-xs text-zinc-400 font-medium">Estimasi Indeks Kemampuan UTBK</span>
+          <div className="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 font-mono tracking-tight">
+            {utbkIndex} <span className="text-xl text-zinc-500 font-normal">/ 800</span>
+          </div>
+          <p className="text-xs text-zinc-400 max-w-md">
+            Skor dihitung berdasarkan pembobotan tingkat kesulitan soal (Diff 1: 1.0, Diff 2: 1.25, Diff 3: 1.6).
+          </p>
+        </div>
+      )}
+
+      {/* TRACK 2: CPNS REPORT */}
+      {track === "CPNS" && cpnsResult && (
+        <div className="flex flex-col gap-6">
+          {!cpnsResult.isPassedAllThresholds && (
+            <div className="p-5 rounded-2xl bg-rose-950/50 border border-rose-500/60 flex items-start gap-4 text-rose-200 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-extrabold text-white text-sm">Peringatan Syarat Passing Grade CPNS!</h4>
+                <p className="text-xs text-rose-300 mt-1">
+                  Subtest <strong>{cpnsResult.belowThreshold.join(", ")}</strong> berada di bawah nilai ambang batas minimal. Kelulusan CPNS gugur jika salah satu subtest tidak mencapai passing grade.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
+            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
+              <span className="text-xs text-zinc-400">TWK (Min 65)</span>
+              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.twk < 65 ? "text-rose-400" : "text-emerald-400"}`}>
+                {cpnsResult.twk}
+              </div>
+            </div>
+            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
+              <span className="text-xs text-zinc-400">TIU (Min 80)</span>
+              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.tiu < 80 ? "text-rose-400" : "text-emerald-400"}`}>
+                {cpnsResult.tiu}
+              </div>
+            </div>
+            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
+              <span className="text-xs text-zinc-400">TKP (Min 166)</span>
+              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.tkp < 166 ? "text-rose-400" : "text-emerald-400"}`}>
+                {cpnsResult.tkp}
+              </div>
+            </div>
+            <div className="glass-panel p-5 rounded-2xl border border-indigo-500/40 bg-indigo-950/20">
+              <span className="text-xs text-indigo-300 font-bold">Total SKD</span>
+              <div className="text-2xl font-black mt-1 font-mono text-white">
+                {cpnsResult.total}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Score Overview Card */}
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-indigo-500/30 flex flex-col gap-6">
-        {summary.type === "UTBK" ? (
-          <div className="flex flex-col items-center justify-center gap-3 text-center">
-            <span className="text-xs font-semibold text-indigo-300 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/30">
-              Indeks Kemampuan ZanBimbel (Internal)
-            </span>
-            <div className="text-5xl sm:text-6xl font-black tracking-tight text-white glow-text-indigo">
-              {summary.indeks}
-            </div>
-            <p className="text-xs text-zinc-400 max-w-lg">
-              {summary.label}. Indeks berkisar antara 200 - 800 berdasarkan pembobotan tingkat kesulitan soal yang berhasil dijawab.
-            </p>
+      {/* TRACK 3: REKRUTMEN HRD REPORT */}
+      {track === "REKRUTMEN" && iqResult && (
+        <div className="glass-panel p-8 rounded-3xl border border-emerald-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-emerald-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <Briefcase className="w-10 h-10 text-emerald-400 mb-1" />
+          <span className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Hasil Asesmen Rekrutmen Karyawan HRD</span>
+          <div className="text-5xl sm:text-6xl font-black text-emerald-400 font-mono tracking-tight">
+            IQ {iqResult.iqScore} <span className="text-xl text-zinc-500 font-normal">/ 150</span>
           </div>
-        ) : (
-          <div className="flex flex-col gap-6">
-            <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
-              <div>
-                <span className="text-xs text-zinc-400 font-medium">Total Skor SKD CPNS</span>
-                <div className="text-4xl font-extrabold text-white">{summary.total} / 550</div>
-              </div>
-              <span
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
-                  summary.isPassedAllThresholds
-                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                    : "bg-rose-500/20 text-rose-400 border-rose-500/30"
-                }`}
-              >
-                {summary.isPassedAllThresholds ? "Tembus Semua Ambang" : "Di Bawah Ambang"}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className={`p-4 rounded-xl border ${summary.belowThreshold?.includes("TWK") ? "bg-rose-950/40 border-rose-500/40" : "bg-zinc-900/60 border-zinc-800"}`}>
-                <span className="text-xs text-zinc-400 block font-medium">TWK (Min 65)</span>
-                <span className="text-xl font-bold text-white">{summary.twk} / 150</span>
-              </div>
-              <div className={`p-4 rounded-xl border ${summary.belowThreshold?.includes("TIU") ? "bg-rose-950/40 border-rose-500/40" : "bg-zinc-900/60 border-zinc-800"}`}>
-                <span className="text-xs text-zinc-400 block font-medium">TIU (Min 80)</span>
-                <span className="text-xl font-bold text-white">{summary.tiu} / 175</span>
-              </div>
-              <div className={`p-4 rounded-xl border ${summary.belowThreshold?.includes("TKP") ? "bg-rose-950/40 border-rose-500/40" : "bg-zinc-900/60 border-zinc-800"}`}>
-                <span className="text-xs text-zinc-400 block font-medium">TKP (Min 166)</span>
-                <span className="text-xl font-bold text-white">{summary.tkp} / 225</span>
-              </div>
-            </div>
+          <div className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold mt-1">
+            Kategori: {iqResult.category}
           </div>
-        )}
-      </div>
+          <p className="text-xs text-zinc-400 max-w-md mt-2">
+            Hasil pengujian ini diukur berdasar Matriks Raven Spasial, Logika Numerik, & Psikotes Kepemimpinan HRD Standar Perusahaan Top-Tier.
+          </p>
+        </div>
+      )}
 
-      {/* Top 3 Skill Gaps Identified */}
-      <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Zap className="w-5 h-5 text-cyan-400" />
-          3 Skill Gap Prioritas Utama
-        </h2>
+      {/* TRACK 4: DEWAN RI REPORT */}
+      {track === "DEWAN_RI" && dewanResult && (
+        <div className="glass-panel p-8 rounded-3xl border border-amber-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-amber-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <Landmark className="w-10 h-10 text-amber-400 mb-1" />
+          <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">Hasil Uji Fit & Proper Test DPR RI</span>
+          <div className="text-5xl sm:text-6xl font-black text-amber-400 font-mono tracking-tight">
+            {dewanResult.percentage}% <span className="text-xl text-zinc-500 font-normal">Skor Kelayakan</span>
+          </div>
+          <div className="px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-amber-400" />
+            Status: {dewanResult.status}
+          </div>
+          <p className="text-xs text-zinc-400 max-w-md mt-2">
+            Mengukur kesiapan fungsi Legislasi, Penganggaran APBN, & Wawasan Regulasi Komisi DPR RI pilihan Anda.
+          </p>
+        </div>
+      )}
+
+      {/* Top 3 Skill Gaps */}
+      <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-4">
+        <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+          <Target className="w-4 h-4 text-indigo-400" />
+          3 Top Gaps (Prioritas Latihan Teratas)
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {topGaps?.map((gap: any, idx: number) => (
-            <div
-              key={idx}
-              className="glass-panel p-5 rounded-2xl border border-zinc-800 flex flex-col gap-3 glass-panel-hover"
-            >
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                  {gap.subtest}
-                </span>
-                <span className="text-xs font-bold text-rose-400 font-mono">
-                  Priority: {(gap.priority * 100).toFixed(0)}%
+          {topGaps.map((gapItem: any, idx: number) => (
+            <div key={gapItem.skillCode} className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 flex flex-col justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Gap #{idx + 1}</span>
+                <h4 className="font-bold text-white text-sm mt-0.5">{gapItem.skillCode}</h4>
+                <span className="text-xs text-zinc-400">Subtest: {gapItem.subtest}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-zinc-800/80">
+                <span className="text-zinc-500">Akurasi: {Math.round(gapItem.accuracy * 100)}%</span>
+                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">
+                  Priority {(gapItem.priority).toFixed(2)}
                 </span>
               </div>
-              <h3 className="text-sm font-bold text-white leading-snug">{gap.label}</h3>
-              <p className="font-mono text-[11px] text-zinc-500">{gap.code}</p>
             </div>
           ))}
         </div>
+
+        <button
+          onClick={() => router.push("/drill")}
+          className="w-full mt-2 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-bold text-sm shadow-glow hover:opacity-90 flex items-center justify-center gap-2"
+        >
+          Mulai Misi Drill Terfokus untuk Menutup Gap
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
 
-      {/* DETAILED ITEM ANSWER ANALYSIS SECTION */}
+      {/* Item-by-Item Answer Analysis Accordion */}
       {itemAnalysis && itemAnalysis.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-indigo-400" />
-            Rincian Analisis Jawaban Per Nomor ({itemAnalysis.length} Soal)
-          </h2>
+        <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-4">
+          <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-cyan-400" />
+            Rincian Analisis Jawaban Per Nomor
+          </h3>
 
           <div className="flex flex-col gap-3">
-            {itemAnalysis.map((item: any, idx: number) => {
-              const isExpanded = expandedItem === item.id;
-              const isMCQ = item.item_type === "mcq";
-
-              return (
-                <div
-                  key={item.id}
-                  className="glass-panel rounded-2xl border border-zinc-800 overflow-hidden transition-all"
+            {itemAnalysis.map((item: any, idx: number) => (
+              <div key={item.id} className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-900/50">
+                <button
+                  onClick={() => toggleAccordion(idx)}
+                  className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-all"
                 >
-                  {/* Item Header Accordion */}
-                  <div
-                    onClick={() => toggleExpand(item.id)}
-                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-zinc-900/50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-zinc-800 text-white font-mono font-bold text-xs flex items-center justify-center">
-                        {idx + 1}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-white truncate max-w-xs sm:max-w-md">
-                          {item.stem}
-                        </span>
-                        <span className="text-[10px] text-zinc-500 font-mono">
-                          Subtes: {item.subtest} • Jawaban Kamu: <strong className="text-white">{item.userChoice}</strong>
+                  <div className="flex items-center gap-3">
+                    <span className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center font-mono ${
+                      item.isCorrect ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                    }`}>
+                      #{idx + 1}
+                    </span>
+                    <div>
+                      <span className="text-xs text-zinc-400 line-clamp-1">{item.stem}</span>
+                      <div className="flex items-center gap-2 mt-0.5 text-[11px]">
+                        <span className="text-zinc-300 font-semibold">Pilihan Lo: Option {item.userSelected}</span>
+                        <span className="text-zinc-500">•</span>
+                        <span className={item.isCorrect ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
+                          {item.isCorrect ? "Benar" : "Salah"} (Skor: {item.scoreGained})
                         </span>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 shrink-0">
-                      {isMCQ ? (
-                        item.isCorrect ? (
-                          <span className="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 font-bold text-xs border border-emerald-500/30 flex items-center gap-1">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Benar (+1)
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 font-bold text-xs border border-rose-500/30 flex items-center gap-1">
-                            <XCircle className="w-3.5 h-3.5" /> Salah
-                          </span>
-                        )
-                      ) : (
-                        <span className="px-2.5 py-1 rounded bg-cyan-500/20 text-cyan-400 font-bold text-xs border border-cyan-500/30">
-                          Skor TKP: {item.score} / 5
-                        </span>
-                      )}
-
-                      {isExpanded ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
                     </div>
                   </div>
+                  {openItemIndex === idx ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
+                </button>
 
-                  {/* Item Expanded Breakdown */}
-                  {isExpanded && (
-                    <div className="p-5 border-t border-zinc-800/80 bg-zinc-950/60 flex flex-col gap-4 text-xs">
-                      {/* Options Review */}
-                      <div className="flex flex-col gap-2">
-                        <span className="font-semibold text-zinc-400">Pilihan Jawaban & Evaluasi:</span>
-                        {Object.entries(item.options || {}).map(([key, val]: any) => {
-                          const isUserSelected = item.userChoice === key;
-                          const isCorrectKey = isMCQ && item.answer === key;
-
-                          let bg = "bg-zinc-900/60 border-zinc-800 text-zinc-300";
-                          if (isCorrectKey) bg = "bg-emerald-950/60 border-emerald-500/50 text-white font-bold";
-                          else if (isUserSelected && !item.isCorrect) bg = "bg-rose-950/60 border-rose-500/50 text-white";
-
-                          return (
-                            <div key={key} className={`p-3 rounded-xl border flex items-center justify-between ${bg}`}>
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono font-bold">{key}.</span>
-                                <span>{val}</span>
-                              </div>
-                              <span className="font-mono text-[11px]">
-                                {isUserSelected && "👈 Jawaban Kamu "}
-                                {isCorrectKey && "✅ Kunci"}
-                                {!isMCQ && `(Skor: ${item.tkp_key?.[key]})`}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Solution Concept & Steps */}
-                      {item.solution && (
-                        <div className="p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/20 flex flex-col gap-3">
-                          <div>
-                            <strong className="text-indigo-300 block mb-1">Konsep Penyelesaian:</strong>
-                            <p className="text-zinc-200">{item.solution.concept}</p>
-                          </div>
-
-                          {item.solution.steps && (
-                            <div>
-                              <strong className="text-indigo-300 block mb-1">Langkah-langkah:</strong>
-                              <ol className="list-decimal list-inside space-y-1 text-zinc-300">
-                                {item.solution.steps.map((st: string, i: number) => (
-                                  <li key={i}>{st}</li>
-                                ))}
-                              </ol>
-                            </div>
-                          )}
-
-                          {item.solution.traps && (
-                            <div className="border-t border-indigo-500/20 pt-3">
-                              <strong className="text-rose-300 block mb-1">Jebakan (Traps):</strong>
-                              <div className="space-y-1 text-zinc-400 font-mono text-[11px]">
-                                {Object.entries(item.solution.traps).map(([k, t]: any) => (
-                                  <div key={k}>• Opsi {k}: {t}</div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
+                {openItemIndex === idx && (
+                  <div className="p-4 border-t border-zinc-800 bg-zinc-950/80 text-xs flex flex-col gap-3">
+                    {/* Concept */}
+                    <div>
+                      <span className="font-bold text-indigo-400 block mb-1">💡 Konsep Utama:</span>
+                      <p className="text-zinc-300 leading-relaxed bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">{item.concept}</p>
                     </div>
-                  )}
 
-                </div>
-              );
-            })}
+                    {/* Solution Steps */}
+                    {item.steps && item.steps.length > 0 && (
+                      <div>
+                        <span className="font-bold text-cyan-400 block mb-1">📝 Langkah Cara Penyelesaian:</span>
+                        <ol className="list-decimal list-inside space-y-1 text-zinc-300 bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">
+                          {item.steps.map((step: string, sIdx: number) => (
+                            <li key={sIdx}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {/* Trap Explanation */}
+                    {item.trapExplanation && (
+                      <div>
+                        <span className="font-bold text-amber-400 block mb-1">⚠️ Penjelasan Jebakan Opsi {item.userSelected}:</span>
+                        <p className="text-amber-200/90 leading-relaxed bg-amber-950/30 p-2.5 rounded-lg border border-amber-500/30">{item.trapExplanation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
-
     </div>
+  );
+}
+
+export default function ReportPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-zinc-400">Memuat Laporan Diagnosis...</div>}>
+      <ReportContent />
+    </Suspense>
   );
 }

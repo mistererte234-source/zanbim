@@ -35,8 +35,8 @@ export const DEFAULT_CPNS_RULESET: CpnsRuleset = {
 };
 
 export interface CpnsAttemptInput {
-  subtest: "TWK" | "TIU" | "TKP" | string;
-  score: number; // MCQ: 5 or 0, TKP: 1..5
+  subtest: string;
+  score: number;
 }
 
 export interface CpnsScoreResult {
@@ -44,7 +44,7 @@ export interface CpnsScoreResult {
   tiu: number;
   tkp: number;
   total: number;
-  belowThreshold: string[]; // e.g. ["TWK", "TIU"]
+  belowThreshold: string[];
   isPassedAllThresholds: boolean;
 }
 
@@ -77,11 +77,60 @@ export function calculateCpnsScore(
   };
 }
 
-export interface SkillStateInput {
-  n: number;
-  nCorrect: number;
-  weightedAcc: Float32Array | number;
-  subtest: string;
+// Rekrutmen HRD IQ Calculator (Skala IQ 80 - 150)
+export function calculateIqIndex(attempts: { isCorrect: boolean; difficulty: number }[]): {
+  iqScore: number;
+  category: string;
+} {
+  if (attempts.length === 0) return { iqScore: 100, category: "Rata-rata (Average)" };
+
+  let correctCount = 0;
+  for (const a of attempts) {
+    if (a.isCorrect) correctCount++;
+  }
+
+  const acc = correctCount / attempts.length;
+  const iqScore = Math.round(80 + acc * 70); // 80..150 scale
+
+  let category = "Rata-rata (Average)";
+  if (iqScore >= 130) category = "Sangat Unggul (Very Superior / High Potential)";
+  else if (iqScore >= 120) category = "Unggul (Superior)";
+  else if (iqScore >= 110) category = "Di Atas Rata-rata (High Average)";
+  else if (iqScore >= 90) category = "Rata-rata (Average)";
+  else category = "Perlu Pengembangan (Below Average)";
+
+  return { iqScore, category };
+}
+
+// Dewan RI Eligibility Calculator (0 - 100%)
+export function calculateDewanEligibility(attempts: { score: number; maxScore: number }[]): {
+  percentage: number;
+  status: string;
+  badgeColor: string;
+} {
+  if (attempts.length === 0) return { percentage: 0, status: "Perlu Pembekalan", badgeColor: "rose" };
+
+  let totalScore = 0;
+  let totalMax = 0;
+  for (const a of attempts) {
+    totalScore += a.score;
+    totalMax += a.maxScore || 1;
+  }
+
+  const percentage = Math.round((totalScore / (totalMax || 1)) * 100);
+
+  let status = "Perlu Pembekalan Legislatif";
+  let badgeColor = "rose";
+
+  if (percentage >= 85) {
+    status = "Sangat Layak (Fit & Proper)";
+    badgeColor = "emerald";
+  } else if (percentage >= 70) {
+    status = "Cukup Layak";
+    badgeColor = "amber";
+  }
+
+  return { percentage, status, badgeColor };
 }
 
 export function calculateSkillPriority(

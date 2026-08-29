@@ -1,163 +1,142 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { calculateUtbkIndex, calculateCpnsScore, calculateSkillPriority, DEFAULT_CPNS_RULESET } from "@/lib/scoring";
-import { INITIAL_TAXONOMY } from "@/lib/taxonomy";
+import { calculateUtbkIndex, calculateCpnsScore, calculateIqIndex, calculateDewanEligibility, calculateSkillPriority } from "@/lib/scoring";
+import { Track } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const track = searchParams.get("track") || "UTBK";
+  const { searchParams } = new URL(req.url);
+  const track = (searchParams.get("track") as Track) || "UTBK";
 
-    const dbItems = await db.item.findMany({
+  try {
+    const items = await db.item.findMany({
       where: {
-        track,
+        track: track,
         status: "published",
       },
+      take: 10,
     });
 
-    const items = dbItems.map((i) => {
-      try {
-        return JSON.parse(i.payload);
-      } catch (e) {
-        return null;
-      }
-    }).filter(Boolean);
-
-    return NextResponse.json({ track, items });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const parsedItems = items.map((item) => JSON.parse(item.payload));
+    return NextResponse.json({ success: true, track, items: parsedItems });
+  } catch (error) {
+    console.error("Failed to fetch diagnosis items:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { track, answers, target } = body;
+    const { track, answers } = body as {
+      track: Track;
+      answers: Record<string, { selectedOption: string; isCorrect?: boolean; score?: number }>;
+    };
 
+    const itemIds = Object.keys(answers);
     const dbItems = await db.item.findMany({
-      where: { track, status: "published" },
+      where: { id: { in: itemIds } },
     });
 
-    const itemMap = new Map<string, any>();
-    for (const i of dbItems) {
-      try {
-        const payload = JSON.parse(i.payload);
-        itemMap.set(i.id, payload);
-      } catch (e) {}
-    }
-
-    const attemptsToSave: any[] = [];
+    const itemsMap = new Map(dbItems.map((item) => [item.id, JSON.parse(item.payload)]));
+    const skillStats: Record<string, { total: number; correct: number; subtest: string }> = {};
     const itemAnalysis: any[] = [];
-    const skillStats = new Map<string, { n: number; nCorrect: number; weightedAcc: number; subtest: string }>();
 
-    for (const sk of INITIAL_TAXONOMY) {
-      if (sk.track === track) {
-        skillStats.set(sk.code, { n: 0, nCorrect: 0, weightedAcc: 0, subtest: sk.subtest });
-      }
-    }
+    // Scoring accumulators
+    const utbkAttempts: { isCorrect: boolean; difficulty: number }[] = [];
+    const cpnsAttempts: { subtest: string; score: number }[] = [];
+    const iqAttempts: { isCorrect: boolean; difficulty: number }[] = [];
+    const dewanAttempts: { score: number; maxScore: number }[] = [];
 
-    let utbkInputs: { isCorrect: boolean; difficulty: number }[] = [];
-    let cpnsInputs: { subtest: string; score: number }[] = [];
+    for (const itemId of itemIds) {
+      const payload = itemsMap.get(itemId);
+      const userAns = answers[itemId];
+      if (!payload) continue;
 
-    for (const itemId of Object.keys(answers)) {
-      const item = itemMap.get(itemId);
-      if (!item) continue;
-
-      const userChoice = answers[itemId].choice;
-      const timeMs = answers[itemId].timeMs || 30000;
-      let score = 0;
       let isCorrect = false;
+      let scoreGained = 0;
 
-      if (item.item_type === "mcq") {
-        isCorrect = userChoice === item.answer;
-        score = isCorrect ? 1.0 : 0.0;
-        if (track === "UTBK") {
-          utbkInputs.push({ isCorrect, difficulty: item.difficulty || 2 });
-        } else {
-          cpnsInputs.push({ subtest: item.subtest, score: isCorrect ? 5 : 0 });
-        }
-      } else if (item.item_type === "tkp_likert") {
-        const itemScore = item.tkp_key?.[userChoice] || 1;
-        score = itemScore;
-        isCorrect = itemScore >= 4;
-        cpnsInputs.push({ subtest: "TKP", score: itemScore });
+      if (payload.item_type === "mcq") {
+        isCorrect = userAns.selectedOption === payload.answer;
+        scoreGained = isCorrect ? 5 : 0;
+        utbkAttempts.push({ isCorrect, difficulty: payload.difficulty });
+        iqAttempts.push({ isCorrect, difficulty: payload.difficulty });
+        dewanAttempts.push({ score: isCorrect ? 10 : 0, maxScore: 10 });
+      } else if (payload.item_type === "tkp_likert") {
+        scoreGained = payload.tkp_key?.[userAns.selectedOption] || 1;
+        isCorrect = scoreGained >= 4;
+        cpnsAttempts.push({ subtest: payload.subtest, score: scoreGained });
+        dewanAttempts.push({ score: scoreGained, maxScore: 5 });
       }
 
-      attemptsToSave.push({
-        itemId,
-        version: item.version || 1,
-        choice: userChoice,
-        score,
-        timeMs,
-      });
-
+      // Collect per-item solution analysis
       itemAnalysis.push({
-        id: item.id,
-        stem: item.stem,
-        subtest: item.subtest,
-        item_type: item.item_type,
-        options: item.options,
-        userChoice,
-        answer: item.answer,
-        tkp_key: item.tkp_key,
-        score,
+        id: payload.id,
+        stem: payload.stem,
+        userSelected: userAns.selectedOption,
+        correctAnswer: payload.answer || null,
         isCorrect,
-        solution: item.solution,
+        scoreGained,
+        concept: payload.solution?.concept || "",
+        steps: payload.solution?.steps || [],
+        trapExplanation: payload.solution?.traps?.[userAns.selectedOption] || null,
       });
 
-      const st = skillStats.get(item.skill) || { n: 0, nCorrect: 0, weightedAcc: 0, subtest: item.subtest };
-      st.n += 1;
-      if (isCorrect) st.nCorrect += 1;
-      st.weightedAcc = st.nCorrect / st.n;
-      skillStats.set(item.skill, st);
+      // Update skill stats
+      const skillCode = payload.skill;
+      if (!skillStats[skillCode]) {
+        skillStats[skillCode] = { total: 0, correct: 0, subtest: payload.subtest };
+      }
+      skillStats[skillCode].total += 1;
+      if (isCorrect) skillStats[skillCode].correct += 1;
     }
 
-    let resultSummary: any = {};
+    let utbkIndex = 200;
+    let cpnsResult = null;
+    let iqResult = null;
+    let dewanResult = null;
 
     if (track === "UTBK") {
-      const index = calculateUtbkIndex(utbkInputs);
-      resultSummary = {
-        type: "UTBK",
-        indeks: index,
-        label: `Indeks Kemampuan ZanBimbel: ${index} (internal, bukan skor SNPMB)`,
-      };
-    } else {
-      const cpnsRes = calculateCpnsScore(cpnsInputs, DEFAULT_CPNS_RULESET);
-      resultSummary = {
-        type: "CPNS",
-        ...cpnsRes,
-      };
+      utbkIndex = calculateUtbkIndex(utbkAttempts);
+    } else if (track === "CPNS") {
+      cpnsResult = calculateCpnsScore(cpnsAttempts);
+    } else if (track === "REKRUTMEN") {
+      iqResult = calculateIqIndex(iqAttempts);
+    } else if (track === "DEWAN_RI") {
+      dewanResult = calculateDewanEligibility(dewanAttempts);
     }
 
-    const belowThresholdSubtests = resultSummary.belowThreshold || [];
-    const skillPriorityList: { code: string; label: string; subtest: string; gap: number; priority: number; n: number }[] = [];
-
-    for (const [code, stat] of skillStats.entries()) {
-      const skMeta = INITIAL_TAXONOMY.find((t) => t.code === code);
-      const label = skMeta ? skMeta.label : code;
-      const calc = calculateSkillPriority(stat, 1.0, belowThresholdSubtests);
-
-      skillPriorityList.push({
-        code,
-        label,
+    const belowThresholdSubtests = cpnsResult?.belowThreshold || [];
+    const skillPriorities = Object.entries(skillStats).map(([skillCode, stat]) => {
+      const acc = stat.total > 0 ? stat.correct / stat.total : 0;
+      const calc = calculateSkillPriority(
+        { n: stat.total, weightedAcc: acc, subtest: stat.subtest },
+        1.0,
+        belowThresholdSubtests
+      );
+      return {
+        skillCode,
         subtest: stat.subtest,
-        gap: calc.gap,
+        accuracy: acc,
         priority: calc.priority,
-        n: stat.n,
-      });
-    }
+        gap: calc.gap,
+      };
+    });
 
-    skillPriorityList.sort((a, b) => b.priority - a.priority);
-    const top3Gaps = skillPriorityList.slice(0, 3);
+    skillPriorities.sort((a, b) => b.priority - a.priority);
+    const topGaps = skillPriorities.slice(0, 3);
 
     return NextResponse.json({
       success: true,
-      summary: resultSummary,
-      topGaps: top3Gaps,
-      skillPriorities: skillPriorityList,
+      track,
+      utbkIndex,
+      cpnsResult,
+      iqResult,
+      dewanResult,
+      topGaps,
       itemAnalysis,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error("Diagnosis scoring error:", error);
+    return NextResponse.json({ success: false, error: "Scoring Error" }, { status: 500 });
   }
 }

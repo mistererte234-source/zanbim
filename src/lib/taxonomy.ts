@@ -34,6 +34,20 @@ export const INITIAL_TAXONOMY: TaxonomySkill[] = [
   { code: "cpns.tkp.kerja.profesionalisme", track: "CPNS", subtest: "TKP", domain: "kerja", label: "Profesionalisme & Etika Kerja", version: 1 },
   { code: "cpns.tkp.kerja.jejaring", track: "CPNS", subtest: "TKP", domain: "kerja", label: "Jejaring Kerja & Kolaborasi", version: 1 },
   { code: "cpns.tkp.nilai.integritas_antikorupsi", track: "CPNS", subtest: "TKP", domain: "nilai", label: "Integritas & Anti Korupsi", version: 1 },
+
+  // REKRUTMEN HRD Skills (IQ & Psikotes Perusahaan Top)
+  { code: "rekrutmen.iq.spasial.matriks_raven", track: "REKRUTMEN", subtest: "IQ_SPASIAL", domain: "spasial", label: "Penalaran Spasial & Matriks Gambar", version: 1 },
+  { code: "rekrutmen.iq.logika.penalaran_kritis", track: "REKRUTMEN", subtest: "IQ_LOGIKA", domain: "logika", label: "Penalaran Kritis & Problem Solving", version: 1 },
+  { code: "rekrutmen.iq.numerik.analisis_data", track: "REKRUTMEN", subtest: "IQ_NUMERIK", domain: "numerik", label: "Logika Numerik & Finansial", version: 1 },
+  { code: "rekrutmen.iq.verbal.analogi_wawasan", track: "REKRUTMEN", subtest: "IQ_VERBAL", domain: "verbal", label: "Penalaran Verbal & Komunikasi Bisnis", version: 1 },
+  { code: "rekrutmen.psikotes.kerja.problem_solving", track: "REKRUTMEN", subtest: "PSIKOTES", domain: "perilaku", label: "Psikotes Kepemimpinan & Etika Kerja", version: 1 },
+
+  // DEWAN RI Skills (Kelayakan Calon Anggota DPR RI Komisi I - XI)
+  { code: "dewan.legislatif.fungsi.pengawasan", track: "DEWAN_RI", subtest: "LEGISLASI", domain: "fungsi", label: "Fungsi Pengawasan & Kelembagaan", version: 1 },
+  { code: "dewan.legislatif.fungsi.penganggaran_apbn", track: "DEWAN_RI", subtest: "BUDGETING", domain: "fungsi", label: "Fungsi Penganggaran APBN & Daerah", version: 1 },
+  { code: "dewan.legislatif.fungsi.pembentukan_uu", track: "DEWAN_RI", subtest: "LEGISLASI", domain: "fungsi", label: "Pembentukan Undang-Undang (Prolegnas)", version: 1 },
+  { code: "dewan.komisi.spesifik.wawasan_regulasi", track: "DEWAN_RI", subtest: "KOMISI_SPESIFIK", domain: "komisi", label: "Wawasan Kebijakan & Regulasi Komisi", version: 1 },
+  { code: "dewan.etika.integritas.anti_korupsi", track: "DEWAN_RI", subtest: "ETIKA_INTEGRITAS", domain: "etika", label: "Etika Publik & Bebas Konflik Kepentingan", version: 1 },
 ];
 
 export const VALID_SKILL_CODES = new Set(INITIAL_TAXONOMY.map(s => s.code));
