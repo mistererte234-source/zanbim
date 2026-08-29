@@ -7,34 +7,41 @@ export async function GET(req: NextRequest) {
   try {
     const events = await db.event.findMany({
       orderBy: { timestamp: "desc" },
-      take: 50,
+      take: 100,
     });
 
     const logs = events.map((ev) => {
-      let parsedPayload: any = {};
+      let payload: any = {};
       try {
-        parsedPayload = JSON.parse(ev.payloadJson);
+        payload = JSON.parse(ev.payloadJson);
       } catch (e) {}
 
       return {
         id: ev.id,
         name: ev.name,
         timestamp: ev.timestamp,
-        ...parsedPayload,
+        ...payload,
       };
     });
 
-    // Compute basic summary
     const totalVisits = events.length;
     const deviceCounts: Record<string, number> = {};
     const trackCounts: Record<string, number> = {};
+    const cityCounts: Record<string, number> = {};
+    const referrerCounts: Record<string, number> = {};
 
     logs.forEach((log) => {
-      const dev = log.device || "Other";
+      const dev = log.device?.os ? `${log.device.os} (${log.device.model})` : log.device || "Desktop";
       deviceCounts[dev] = (deviceCounts[dev] || 0) + 1;
 
-      const trk = log.track || "UTBK";
+      const trk = log.session?.track || log.track || "UTBK";
       trackCounts[trk] = (trackCounts[trk] || 0) + 1;
+
+      const city = log.geo?.city || "Surabaya / Jakarta";
+      cityCounts[city] = (cityCounts[city] || 0) + 1;
+
+      const ref = log.session?.referrer || "Direct (Ketik URL)";
+      referrerCounts[ref] = (referrerCounts[ref] || 0) + 1;
     });
 
     return NextResponse.json({
@@ -42,6 +49,8 @@ export async function GET(req: NextRequest) {
       totalVisits,
       deviceCounts,
       trackCounts,
+      cityCounts,
+      referrerCounts,
       logs,
     });
   } catch (error) {
@@ -50,6 +59,8 @@ export async function GET(req: NextRequest) {
       totalVisits: 0,
       deviceCounts: {},
       trackCounts: {},
+      cityCounts: {},
+      referrerCounts: {},
       logs: [],
     });
   }
