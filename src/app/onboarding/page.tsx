@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Target, Compass, Sparkles, ArrowRight, CheckCircle2, ShieldAlert, Briefcase, Landmark } from "lucide-react";
+import { Target, Compass, Sparkles, ArrowRight, CheckCircle2, ShieldAlert, Briefcase, Landmark, GraduationCap } from "lucide-react";
 import { Track } from "@/lib/types";
 
 export default function OnboardingPage() {
@@ -20,6 +20,10 @@ export default function OnboardingPage() {
 
   // DPR RI Commission Selection
   const [dprCommission, setDprCommission] = useState("Komisi III (Hukum, HAM, & Keamanan)");
+
+  // Dosen Target Selection
+  const [dosenUniversity, setDosenUniversity] = useState("Universitas Gadjah Mada (UGM)");
+  const [dosenField, setDosenField] = useState("Teknologi, Informasi, & Sains Data");
 
   const hrdRolesList = [
     "IT & Software Engineering",
@@ -43,6 +47,15 @@ export default function OnboardingPage() {
     "Komisi XI (Keuangan, Perbankan, BI, & Bappenas)",
   ];
 
+  const dosenFieldsList = [
+    "Teknologi, Informasi, & Sains Data",
+    "Sains Dasar & Rekayasa Teknik",
+    "Sosial, Politik, Hukum, & Ekonomi",
+    "Kedokteran & Ilmu Kesehatan masyarakat",
+    "Pendidikan, Bahasa, & Keguruan",
+    "Seni, Desain, & Industri Kreatif",
+  ];
+
   const handleSaveAndStart = () => {
     localStorage.setItem("zanbim_track", track);
     
@@ -51,6 +64,7 @@ export default function OnboardingPage() {
     else if (track === "CPNS") targetName = `${targetMinistry} - ${targetFormasi}`;
     else if (track === "REKRUTMEN") targetName = `Karyawan: ${hrdRole}`;
     else if (track === "DEWAN_RI") targetName = `Anggota DPR RI: ${dprCommission}`;
+    else if (track === "DOSEN") targetName = `Dosen ${dosenUniversity} (${dosenField})`;
 
     localStorage.setItem("zanbim_target", targetName);
     window.dispatchEvent(new Event("zanbim_track_changed"));
@@ -58,7 +72,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 flex flex-col gap-8">
+    <div className="max-w-5xl mx-auto py-8 px-4 flex flex-col gap-8">
       {/* Header Banner */}
       <div className="text-center flex flex-col items-center gap-3">
         <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
@@ -68,12 +82,12 @@ export default function OnboardingPage() {
           Sesuaikan Asesmen dengan Target Anda
         </h1>
         <p className="text-zinc-400 max-w-xl text-sm leading-relaxed">
-          ZanBimbel v3 mendukung tes adaptif untuk **Siswa UTBK**, **Calon ASN CPNS**, **Rekrutmen Karyawan HRD (Tes IQ Top Corp)**, dan **Kelayakan Calon Anggota DPR RI**.
+          ZanBimbel v3 mendukung tes adaptif untuk **UTBK**, **CPNS**, **Rekrutmen HRD**, **Anggota DPR RI**, dan **Seleksi Dosen PTN/PTS**.
         </p>
       </div>
 
-      {/* 4 Cards Track Switcher */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 5 Cards Track Switcher */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Card 1: UTBK */}
         <div
@@ -91,9 +105,9 @@ export default function OnboardingPage() {
             {track === "UTBK" && <CheckCircle2 className="w-5 h-5 text-indigo-400" />}
           </div>
           <div>
-            <h3 className="font-extrabold text-white text-lg">UTBK SNBT 2026</h3>
+            <h3 className="font-extrabold text-white text-base">UTBK SNBT 2026</h3>
             <p className="text-xs text-zinc-400 mt-1">
-              Tes Potensi Skolastik (TPS), Literasi Indonesia, Literasi Inggris, & Penalaran Matematika.
+              TPS, Literasi Indonesia, Literasi Inggris, & Penalaran Matematika.
             </p>
           </div>
         </div>
@@ -114,9 +128,9 @@ export default function OnboardingPage() {
             {track === "CPNS" && <CheckCircle2 className="w-5 h-5 text-cyan-400" />}
           </div>
           <div>
-            <h3 className="font-extrabold text-white text-lg">CPNS SKD 2026</h3>
+            <h3 className="font-extrabold text-white text-base">CPNS SKD 2026</h3>
             <p className="text-xs text-zinc-400 mt-1">
-              Tes Wawasan Kebangsaan (TWK 65), Tes Inteligensi Umum (TIU 80), & TKP Likert (166).
+              Tes Wawasan Kebangsaan (TWK), Tes Inteligensi Umum (TIU), & TKP.
             </p>
           </div>
         </div>
@@ -137,9 +151,9 @@ export default function OnboardingPage() {
             {track === "REKRUTMEN" && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
           </div>
           <div>
-            <h3 className="font-extrabold text-white text-lg">Rekrutmen HRD & Tes IQ</h3>
+            <h3 className="font-extrabold text-white text-base">Rekrutmen HRD & Tes IQ</h3>
             <p className="text-xs text-zinc-400 mt-1">
-              Tes IQ Matriks Raven, Penalaran Kritis, Finansial Numerik, & Psikotes Kerja Perusahaan Top.
+              Matriks Raven, Penalaran Kritis, Finansial Numerik, & Psikotes Kerja.
             </p>
           </div>
         </div>
@@ -160,9 +174,32 @@ export default function OnboardingPage() {
             {track === "DEWAN_RI" && <CheckCircle2 className="w-5 h-5 text-amber-400" />}
           </div>
           <div>
-            <h3 className="font-extrabold text-white text-lg">Tes Kelayakan Dewan RI</h3>
+            <h3 className="font-extrabold text-white text-base">Tes Kelayakan Dewan RI</h3>
             <p className="text-xs text-zinc-400 mt-1">
-              Uji Asesmen Kelayakan Legislator Komisi I - XI (Fungsi Legislasi, Budgeting APBN, & Wawasan).
+              Asesmen Legislator Komisi I - XI (Legislasi, APBN, & Wawasan).
+            </p>
+          </div>
+        </div>
+
+        {/* Card 5: DOSEN */}
+        <div
+          onClick={() => setTrack("DOSEN")}
+          className={`p-5 rounded-2xl border cursor-pointer transition-all flex flex-col gap-3 relative md:col-span-2 ${
+            track === "DOSEN"
+              ? "bg-purple-950/40 border-purple-500/80 shadow-glow"
+              : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            {track === "DOSEN" && <CheckCircle2 className="w-5 h-5 text-purple-400" />}
+          </div>
+          <div>
+            <h3 className="font-extrabold text-white text-base">Seleksi Dosen PTN / PTS</h3>
+            <p className="text-xs text-zinc-400 mt-1">
+              Pengujian Tri Dharma Perguruan Tinggi (Pedagogik, Metodologi Penelitian Scopus/Sinta, PkM, Etika Akademis, & TPA).
             </p>
           </div>
         </div>
@@ -253,6 +290,33 @@ export default function OnboardingPage() {
                 <option key={comm} value={comm}>{comm}</option>
               ))}
             </select>
+          </div>
+        )}
+
+        {track === "DOSEN" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-zinc-400 mb-1.5 block">Nama Universitas / Kampus Target</label>
+              <input
+                type="text"
+                value={dosenUniversity}
+                onChange={(e) => setDosenUniversity(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500"
+                placeholder="Contoh: Universitas Indonesia / ITB"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-zinc-400 mb-1.5 block">Rumpun Bidang Keahlian Dosen</label>
+              <select
+                value={dosenField}
+                onChange={(e) => setDosenField(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                {dosenFieldsList.map((df) => (
+                  <option key={df} value={df}>{df}</option>
+                ))}
+              </select>
+            </div>
           </div>
         )}
 

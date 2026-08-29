@@ -35,19 +35,26 @@ export const INITIAL_TAXONOMY: TaxonomySkill[] = [
   { code: "cpns.tkp.kerja.jejaring", track: "CPNS", subtest: "TKP", domain: "kerja", label: "Jejaring Kerja & Kolaborasi", version: 1 },
   { code: "cpns.tkp.nilai.integritas_antikorupsi", track: "CPNS", subtest: "TKP", domain: "nilai", label: "Integritas & Anti Korupsi", version: 1 },
 
-  // REKRUTMEN HRD Skills (IQ & Psikotes Perusahaan Top)
+  // REKRUTMEN HRD Skills
   { code: "rekrutmen.iq.spasial.matriks_raven", track: "REKRUTMEN", subtest: "IQ_SPASIAL", domain: "spasial", label: "Penalaran Spasial & Matriks Gambar", version: 1 },
   { code: "rekrutmen.iq.logika.penalaran_kritis", track: "REKRUTMEN", subtest: "IQ_LOGIKA", domain: "logika", label: "Penalaran Kritis & Problem Solving", version: 1 },
   { code: "rekrutmen.iq.numerik.analisis_data", track: "REKRUTMEN", subtest: "IQ_NUMERIK", domain: "numerik", label: "Logika Numerik & Finansial", version: 1 },
   { code: "rekrutmen.iq.verbal.analogi_wawasan", track: "REKRUTMEN", subtest: "IQ_VERBAL", domain: "verbal", label: "Penalaran Verbal & Komunikasi Bisnis", version: 1 },
   { code: "rekrutmen.psikotes.kerja.problem_solving", track: "REKRUTMEN", subtest: "PSIKOTES", domain: "perilaku", label: "Psikotes Kepemimpinan & Etika Kerja", version: 1 },
 
-  // DEWAN RI Skills (Kelayakan Calon Anggota DPR RI Komisi I - XI)
+  // DEWAN RI Skills
   { code: "dewan.legislatif.fungsi.pengawasan", track: "DEWAN_RI", subtest: "LEGISLASI", domain: "fungsi", label: "Fungsi Pengawasan & Kelembagaan", version: 1 },
   { code: "dewan.legislatif.fungsi.penganggaran_apbn", track: "DEWAN_RI", subtest: "BUDGETING", domain: "fungsi", label: "Fungsi Penganggaran APBN & Daerah", version: 1 },
   { code: "dewan.legislatif.fungsi.pembentukan_uu", track: "DEWAN_RI", subtest: "LEGISLASI", domain: "fungsi", label: "Pembentukan Undang-Undang (Prolegnas)", version: 1 },
   { code: "dewan.komisi.spesifik.wawasan_regulasi", track: "DEWAN_RI", subtest: "KOMISI_SPESIFIK", domain: "komisi", label: "Wawasan Kebijakan & Regulasi Komisi", version: 1 },
   { code: "dewan.etika.integritas.anti_korupsi", track: "DEWAN_RI", subtest: "ETIKA_INTEGRITAS", domain: "etika", label: "Etika Publik & Bebas Konflik Kepentingan", version: 1 },
+
+  // DOSEN Skills (Seleksi Dosen PTN / PTS & NIDN)
+  { code: "dosen.tridharma.pendidikan.pedagogik", track: "DOSEN", subtest: "PEDAGOGIK", domain: "pendidikan", label: "Kompetensi Pedagogik & Pembelajaran", version: 1 },
+  { code: "dosen.tridharma.penelitian.metodologi", track: "DOSEN", subtest: "PENELITIAN", domain: "penelitian", label: "Metodologi Penelitian & Jurnal Scopus/Sinta", version: 1 },
+  { code: "dosen.tridharma.pengabdian.masyarakat", track: "DOSEN", subtest: "PENGABDIAN", domain: "pengabdian", label: "Pengabdian Kepada Masyarakat (PkM)", version: 1 },
+  { code: "dosen.etika.akademis.integritas", track: "DOSEN", subtest: "ETIKA_AKADEMIS", domain: "etika", label: "Etika Akademis & Bebas Plagiarisme", version: 1 },
+  { code: "dosen.potensi.akademik.analisis_kritis", track: "DOSEN", subtest: "TPA_DOSEN", domain: "potensi", label: "Tes Potensi Akademik (TPA) Dosen", version: 1 },
 ];
 
 export const VALID_SKILL_CODES = new Set(INITIAL_TAXONOMY.map(s => s.code));

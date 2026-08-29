@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { calculateUtbkIndex, calculateCpnsScore, calculateIqIndex, calculateDewanEligibility, calculateSkillPriority } from "@/lib/scoring";
+import { calculateUtbkIndex, calculateCpnsScore, calculateIqIndex, calculateDewanEligibility, calculateDosenScore, calculateSkillPriority } from "@/lib/scoring";
 import { Track } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
     const cpnsAttempts: { subtest: string; score: number }[] = [];
     const iqAttempts: { isCorrect: boolean; difficulty: number }[] = [];
     const dewanAttempts: { score: number; maxScore: number }[] = [];
+    const dosenAttempts: { isCorrect: boolean; difficulty: number }[] = [];
 
     for (const itemId of itemIds) {
       const payload = itemsMap.get(itemId);
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
         utbkAttempts.push({ isCorrect, difficulty: payload.difficulty });
         iqAttempts.push({ isCorrect, difficulty: payload.difficulty });
         dewanAttempts.push({ score: isCorrect ? 10 : 0, maxScore: 10 });
+        dosenAttempts.push({ isCorrect, difficulty: payload.difficulty });
       } else if (payload.item_type === "tkp_likert") {
         scoreGained = payload.tkp_key?.[userAns.selectedOption] || 1;
         isCorrect = scoreGained >= 4;
@@ -94,6 +96,7 @@ export async function POST(req: NextRequest) {
     let cpnsResult = null;
     let iqResult = null;
     let dewanResult = null;
+    let dosenResult = null;
 
     if (track === "UTBK") {
       utbkIndex = calculateUtbkIndex(utbkAttempts);
@@ -103,6 +106,8 @@ export async function POST(req: NextRequest) {
       iqResult = calculateIqIndex(iqAttempts);
     } else if (track === "DEWAN_RI") {
       dewanResult = calculateDewanEligibility(dewanAttempts);
+    } else if (track === "DOSEN") {
+      dosenResult = calculateDosenScore(dosenAttempts);
     }
 
     const belowThresholdSubtests = cpnsResult?.belowThreshold || [];
@@ -132,6 +137,7 @@ export async function POST(req: NextRequest) {
       cpnsResult,
       iqResult,
       dewanResult,
+      dosenResult,
       topGaps,
       itemAnalysis,
     });

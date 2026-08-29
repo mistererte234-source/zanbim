@@ -133,6 +133,35 @@ export function calculateDewanEligibility(attempts: { score: number; maxScore: n
   return { percentage, status, badgeColor };
 }
 
+// Dosen PTN/PTS Qualification Calculator (0 - 100%)
+export function calculateDosenScore(attempts: { isCorrect: boolean; difficulty: number }[]): {
+  percentage: number;
+  status: string;
+  recommendation: string;
+} {
+  if (attempts.length === 0) return { percentage: 0, status: "Perlu Pembekalan", recommendation: "Pendampingan Tri Dharma" };
+
+  let correct = 0;
+  for (const a of attempts) {
+    if (a.isCorrect) correct++;
+  }
+
+  const percentage = Math.round((correct / attempts.length) * 100);
+
+  let status = "Perlu Pembekalan Tri Dharma";
+  let recommendation = "Perlu peningkatan publikasi Scopus/Sinta & Metode Pedagogik";
+
+  if (percentage >= 80) {
+    status = "Lolos Kualifikasi Dosen (Sangat Layak)";
+    recommendation = "Direkomendasikan Lolos Seleksi Dosen PTN/PTS & NIDN";
+  } else if (percentage >= 65) {
+    status = "Cukup Kualifikasi";
+    recommendation = "Direkomendasikan Lolos dengan Catatan Pelatihan Pekerti/AA";
+  }
+
+  return { percentage, status, recommendation };
+}
+
 export function calculateSkillPriority(
   state: { n: number; weightedAcc: number; subtest: string },
   wTarget: number = 1.0,

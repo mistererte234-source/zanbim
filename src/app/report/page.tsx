@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle, Target, ArrowRight, BookOpen, ChevronDown, ChevronUp, HelpCircle, ShieldAlert, Briefcase, Landmark, Award } from "lucide-react";
+import { AlertTriangle, CheckCircle, Target, ArrowRight, BookOpen, ChevronDown, ChevronUp, HelpCircle, ShieldAlert, Briefcase, Landmark, Award, GraduationCap } from "lucide-react";
 import { Track } from "@/lib/types";
 
 function ReportContent() {
@@ -42,7 +42,7 @@ function ReportContent() {
     );
   }
 
-  const { track, utbkIndex, cpnsResult, iqResult, dewanResult, topGaps, itemAnalysis } = reportData;
+  const { track, utbkIndex, cpnsResult, iqResult, dewanResult, dosenResult, topGaps, itemAnalysis } = reportData;
 
   const toggleAccordion = (idx: number) => {
     setOpenItemIndex(openItemIndex === idx ? null : idx);
@@ -160,6 +160,24 @@ function ReportContent() {
           </div>
           <p className="text-xs text-zinc-400 max-w-md mt-2">
             Mengukur kesiapan fungsi Legislasi, Penganggaran APBN, & Wawasan Regulasi Komisi DPR RI pilihan Anda.
+          </p>
+        </div>
+      )}
+
+      {/* TRACK 5: DOSEN REPORT */}
+      {track === "DOSEN" && dosenResult && (
+        <div className="glass-panel p-8 rounded-3xl border border-purple-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-purple-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <GraduationCap className="w-10 h-10 text-purple-400 mb-1" />
+          <span className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Hasil Seleksi & Asesmen Dosen PTN/PTS</span>
+          <div className="text-5xl sm:text-6xl font-black text-purple-400 font-mono tracking-tight">
+            {dosenResult.percentage}% <span className="text-xl text-zinc-500 font-normal">Indeks Kualifikasi</span>
+          </div>
+          <div className="px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-purple-400" />
+            Status: {dosenResult.status}
+          </div>
+          <p className="text-xs text-zinc-400 max-w-md mt-2">
+            Rekomendasi Tim Asesor: <strong>{dosenResult.recommendation}</strong>
           </p>
         </div>
       )}

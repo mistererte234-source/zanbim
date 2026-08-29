@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Compass, Target, BookOpen, Sparkles, ArrowRight, Award, ShieldAlert, CheckCircle2, Briefcase, Landmark } from "lucide-react";
+import { Compass, Target, BookOpen, Sparkles, ArrowRight, Award, ShieldAlert, CheckCircle2, Briefcase, Landmark, GraduationCap } from "lucide-react";
 import { Track } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -71,12 +71,14 @@ export default function DashboardPage() {
             {track === "CPNS" && "Perkiraan Skor SKD Total"}
             {track === "REKRUTMEN" && "Estimasi Indeks IQ HRD"}
             {track === "DEWAN_RI" && "Skor Kelayakan Legislator"}
+            {track === "DOSEN" && "Indeks Kualifikasi Dosen"}
           </span>
           <div className="text-4xl font-black text-white font-mono">
             {track === "UTBK" && "650 / 800"}
             {track === "CPNS" && "395 / 550"}
             {track === "REKRUTMEN" && "IQ 132"}
             {track === "DEWAN_RI" && "88% Fit"}
+            {track === "DOSEN" && "85% Lolos"}
           </div>
           <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" /> Berada di Jalur Target

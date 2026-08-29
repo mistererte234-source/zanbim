@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 const SAMPLE_ITEMS = [
   // -------------------------------------------------------------
-  // UTBK HOTS ITEMS (20 ITEMS)
+  // UTBK HOTS ITEMS
   // -------------------------------------------------------------
   {
     id: "utbk.pm.aljabar.persamaan.001",
@@ -35,43 +35,9 @@ const SAMPLE_ITEMS = [
       }
     }
   },
-  {
-    id: "utbk.pu.logika.silogisme.001",
-    version: 1,
-    track: "UTBK",
-    subtest: "PU",
-    skill: "utbk.pu.logika.silogisme",
-    difficulty: 3,
-    status: "published",
-    item_type: "mcq",
-    stem: "Premis 1: Semua peneliti senior di Lembaga Riset Nasional menguasai analisis data kuantitatif.\nPremis 2: Sebagian peneliti senior di Lembaga Riset Nasional tidak mempublikasikan jurnal internasional tahun ini.\nManakah kesimpulan logis yang PASTI BENAR?",
-    options: {
-      A: "Semua peneliti yang menguasai analisis data kuantitatif mempublikasikan jurnal internasional tahun ini",
-      B: "Sebagian peneliti yang menguasai analisis data kuantitatif tidak mempublikasikan jurnal internasional tahun ini",
-      C: "Semua peneliti yang tidak mempublikasikan jurnal internasional tahun ini bukan peneliti senior",
-      D: "Sebagian peneliti yang tidak menguasai analisis data kuantitatif mempublikasikan jurnal internasional",
-      E: "Tidak ada peneliti senior yang menguasai analisis data kuantitatif"
-    },
-    answer: "B",
-    solution: {
-      concept: "Silogisme Kategoris Kombinasi Premis Universal Affirmative (All S are P) dan Particular Negative (Some S are not Q).",
-      steps: [
-        "Premis 1: Semua S (Peneliti Senior) adalah P (Menguasai Data Kuantitatif).",
-        "Premis 2: Sebagian S (Peneliti Senior) adalah bukan Q (Tidak Publikasi Jurnal).",
-        "Dua premis ini mengimplikasikan bahwa ada anggota S yang sekaligus merupakan P namun bukan Q.",
-        "Kesimpulan sah: Sebagian yang menguasai data kuantitatif (P) tidak mempublikasikan jurnal internasional (bukan Q)."
-      ],
-      traps: {
-        A: "Generalisasi universal berlebihan yang bertentangan dengan premis 2.",
-        C: "Mengabaikan fakta bahwa premis 2 berkuantor sebagian (particular).",
-        D: "Membuat pengandalan variabel luar.",
-        E: "Kontradiksi total dengan Premis 1."
-      }
-    }
-  },
 
   // -------------------------------------------------------------
-  // CPNS HOTS ITEMS (20 ITEMS)
+  // CPNS HOTS ITEMS
   // -------------------------------------------------------------
   {
     id: "cpns.twk.pilar.pancasila.001",
@@ -107,7 +73,7 @@ const SAMPLE_ITEMS = [
   },
 
   // -------------------------------------------------------------
-  // REKRUTMEN HRD HOTS ITEMS (IQ & PSIKOTES STANDAR CORPORATE TOP)
+  // REKRUTMEN HRD ITEMS
   // -------------------------------------------------------------
   {
     id: "rekrutmen.iq.spasial.matriks_raven.001",
@@ -128,7 +94,7 @@ const SAMPLE_ITEMS = [
     },
     answer: "A",
     solution: {
-      concept: "Penalaran Matriks Spasial Raven (Raven's Advanced Progressive Matrices) Kombinasi Transformasi Sudut dan Inkremen Elemen.",
+      concept: "Penalaran Matriks Spasial Raven Kombinasi Transformasi Sudut dan Inkremen Elemen.",
       steps: [
         "Aturan Kolom: Rotasi +90° searah jarum jam dari Kolom 2 (180°) menuju Kolom 3 -> 180° + 90° = 270°.",
         "Aturan Baris: Jumlah garis diagonal konstan pada baris yang sama -> Baris 3 tetap 3 garis diagonal.",
@@ -142,72 +108,9 @@ const SAMPLE_ITEMS = [
       }
     }
   },
-  {
-    id: "rekrutmen.iq.logika.penalaran_kritis.001",
-    version: 1,
-    track: "REKRUTMEN",
-    subtest: "IQ_LOGIKA",
-    skill: "rekrutmen.iq.logika.penalaran_kritis",
-    difficulty: 3,
-    status: "published",
-    item_type: "mcq",
-    stem: "Direktur Keuangan menyatakan: 'Jika efisiensi alokasi modal kerja tercapai, maka laba operasional bersih kuartal ini akan tumbuh minimal 18%'. Faktanya, laba operasional bersih kuartal ini hanya tumbuh 12%. Manakah deduksi manajemen yang PASTI BENAR?",
-    options: {
-      A: "Efisiensi alokasi modal kerja tidak tercapai secara optimal",
-      B: "Efisiensi alokasi modal kerja tetap tercapai sempurna",
-      C: "Perusahaan pasti mengalami kerugian bersih",
-      D: "Tim pemasaran tidak bekerja dengan baik",
-      E: "Direktur Keuangan memotong gaji seluruh karyawan"
-    },
-    answer: "A",
-    solution: {
-      concept: "Logika Deduktif Manajemen (Modus Tollens: p -> q, ~q ⊢ ~p).",
-      steps: [
-        "Premis: p (Efisiensi Modal) -> q (Laba Tumbuh >= 18%).",
-        "Fakta: ~q (Laba hanya 12%, artinya tidak mencapai 18%).",
-        "Modus Tollens: ~p (Efisiensi alokasi modal kerja tidak tercapai)."
-      ],
-      traps: {
-        B: "Mengabaikan hukum deduksi logika modus tollens.",
-        C: "Laba 12% masih bernilai positif (bukan rugi).",
-        D: "Pengandalan variabel luar tanpa bukti premis.",
-        E: "Asumsi ekstrem tak berdasar."
-      }
-    }
-  },
-  {
-    id: "rekrutmen.psikotes.kerja.problem_solving.001",
-    version: 1,
-    track: "REKRUTMEN",
-    subtest: "PSIKOTES",
-    skill: "rekrutmen.psikotes.kerja.problem_solving",
-    difficulty: 3,
-    status: "published",
-    item_type: "tkp_likert",
-    stem: "Anda memimpin tim pengembang software di perusahaan teknologi skala besar. Saat peluncuran produk tinggal 3 hari, ditemukan bug kritis pada modul pembayaran yang dapat mengancam integritas data transaksi jutaan pengguna. Pihak manajemen menuntut peluncuran tidak boleh ditunda. Tindakan Anda adalah...",
-    options: {
-      A: "Menjelaskan risiko keamanan data secara obyektif ke manajemen, mengusulkan penundaan peluncuran 48 jam khusus untuk penambalan bug, dan memimpin tim perbaikan darurat",
-      B: "Meluncurkan produk sesuai jadwal dan menyembunyikan masalah bug dari publik agar reputasi perusahaan aman",
-      C: "Menyerahkan seluruh keputusan penundaan atau peluncuran kepada staf junior pengemban modul",
-      D: "Mengabaikan instruksi manajemen dan mematikan server secara sepihak tanpa koordinasi",
-      E: "Menyalahkan vendor luar penyedia modul pembayaran di depan publik"
-    },
-    tkp_key: { A: 5, B: 2, C: 3, D: 2, E: 1 },
-    solution: {
-      concept: "Manajemen Kepemimpinan Risiko & Etika Keamanan Siber Produk Teknologi (Corporate Problem Solving).",
-      steps: [
-        "Opsi A menunjukkan kepemimpinan berintegritas tinggi (Skor 5): Menjelaskan risiko objektif, mengusulkan penundaan terkontrol 48 jam, & memimpin penanganan darurat.",
-        "Keamanan data transaksi pengguna merupakan prioritas utama reputasi jangka panjang."
-      ],
-      traps: {
-        B: "Bentuk kebohongan publik & risiko kebocoran data massif.",
-        E: "Melempar tanggung jawab."
-      }
-    }
-  },
 
   // -------------------------------------------------------------
-  // DEWAN RI HOTS ITEMS (KELAYAKAN CALON ANGGOTA DPR RI KOMISI I - XI)
+  // DEWAN RI ITEMS
   // -------------------------------------------------------------
   {
     id: "dewan.komisi.spesifik.wawasan_regulasi.001",
@@ -241,71 +144,78 @@ const SAMPLE_ITEMS = [
       }
     }
   },
+
+  // -------------------------------------------------------------
+  // DOSEN PTN/PTS HOTS ITEMS (PEDAGOGIK, RESEARCH, TRI DHARMA)
+  // -------------------------------------------------------------
   {
-    id: "dewan.legislatif.fungsi.penganggaran_apbn.001",
+    id: "dosen.tridharma.penelitian.metodologi.001",
     version: 1,
-    track: "DEWAN_RI",
-    subtest: "BUDGETING",
-    skill: "dewan.legislatif.fungsi.penganggaran_apbn",
+    track: "DOSEN",
+    subtest: "PENELITIAN",
+    skill: "dosen.tridharma.penelitian.metodologi",
     difficulty: 3,
     status: "published",
     item_type: "mcq",
-    stem: "[KOMISI XI: Keuangan, Perbankan, & Bappenas]\nPada rapat pembahasan RAPBN bersama Menteri Keuangan dan Bank Indonesia, Komisi XI menemukan pengajuan alokasi anggaran subsidi energi yang melonjak 40% namun tidak disertai target sasaran penerima yang jelas. Tindakan paling tepat anggota Komisi XI adalah...",
+    stem: "Seorang dosen sedang menyusun artikel ilmiah untuk disubmit ke jurnal internasional bereputasi terindeks Scopus Q1. Dalam melakukan tinjauan pustaka (literature review), dosen tersebut mengutip ide utama dari 3 naskah lain tetapi mengubah susunan kata tanpa mencantumkan sitasi ilmiah yang tepat. Tindakan tersebut dalam etika akademis masuk dalam kategori...",
     options: {
-      A: "Menolak pengesahan alokasi subsidi tersebut sebelum kementerian menyerahkan Data Terpadu Kesejahteraan Sosial (DTKS) yang tervalidasi presisi",
-      B: "Langsung menyetujui anggaran tanpa verifikasi agar rapat cepat selesai",
-      C: "Meminta jatah alokasi dana subsidi untuk dibagikan khusus di daerah pemilihannya saja",
-      D: "Memotong anggaran subsidi menjadi nol persen secara sepihak",
-      E: "Mengalihkan seluruh dana subsidi energi ke anggaran perjalanan dinas DPR"
+      A: "Plagiarisme Paraphrasing tanpa Sitasi (Academic Dishonesty)",
+      B: "Praktik ilmiah yang sah karena kata-kata sudah diubah",
+      C: "Auto-Plagiarisme yang diperbolehkan dalam penelitian empiris",
+      D: "Inovasi metodologi penelitian kuantitatif",
+      E: "Fabrikasi data penelitian"
     },
     answer: "A",
     solution: {
-      concept: "Fungsi Budgeting (Penganggaran APBN) DPR RI: Asesmen Efektivitas, Akuntabilitas, & Ketepatan Sasaran Belanja Negara.",
+      concept: "Etika Akademis Dosen & Integritas Publikasi Ilmiah (Standar Bebas Plagiarisme Permendikbudristek).",
       steps: [
-        "Fungsi penganggaran DPR menuntut transparansi dan akuntabilitas belanja publik.",
-        "Menunda persetujuan sampai data sasaran (DTKS) terverifikasi merupakan wujud pengawasan anggaran yang bertanggung jawab."
+        "Mengutip ide orang lain meskipun kata-katanya diubah (paraphrase) tanpa menyebutkan sumber rujukan/sitasi tetap merupakan bentuk Plagiarisme.",
+        "Pelanggaran ini merusak integritas integritas akademik dosen (Academic Dishonesty)."
       ],
       traps: {
-        B: "Abai pada kebocoran anggaran negara.",
-        C: "Konflik kepentingan politik transaksional.",
-        D: "Keputusan ekstrem tidak rasional.",
-        E: "Penyalahgunaan wewenang berat."
+        B: "Mengkira perubahan kata menghilangkan kewajiban sitasi.",
+        C: "Auto-plagiarisme adalah mengutip karya sendiri.",
+        D: "Bukan inovasi metodologi.",
+        E: "Fabrikasi data adalah membuat data palsu."
       }
     }
   },
   {
-    id: "dewan.etika.integritas.anti_korupsi.001",
+    id: "dosen.tridharma.pendidikan.pedagogik.001",
     version: 1,
-    track: "DEWAN_RI",
-    subtest: "ETIKA_INTEGRITAS",
-    skill: "dewan.etika.integritas.anti_korupsi",
+    track: "DOSEN",
+    subtest: "PEDAGOGIK",
+    skill: "dosen.tridharma.pendidikan.pedagogik",
     difficulty: 3,
     status: "published",
-    item_type: "tkp_likert",
-    stem: "[KOMISI III: Hukum, HAM, & Keamanan]\nAnda adalah anggota Komisi III DPR RI. Seorang direktur BUMN yang sedang menjalani pemeriksaan kasus dugaan tindak pidana korupsi oleh mitra kerja Anda (KPK/Kejaksaan) menawarkan kompensasi kepemilikan saham perusahaan keluarga Anda asal Anda bersedia mengintervensi proses penyidikan. Sikap Anda...",
+    item_type: "mcq",
+    stem: "Dalam merancang Rencana Pembelajaran Semester (RPS) berbasis Outcome-Based Education (OBE), seorang dosen menetapkan Capaian Pembelajaran Lulusan (CPL) agar mahasiswa mampu memecahkan masalah sistemik industri melalui analisis kritis. Metode asesmen pembelajaran yang paling selaras dengan prinsip constructive alignment adalah...",
     options: {
-      A: "Menolak tawaran intervensi secara mutlak tegas, menjaga independensi lembaga penegak hukum, dan melaporkan indikasi tindak pidana penyuapan ke KPK",
-      B: "Menerima saham tersebut secara rahasia dan berpura-pura menanyakan perkembangan kasus di rapat dengar pendapat",
-      C: "Menolak saham tetapi menyarankan direktur tersebut menyuap penyidik KPK secara langsung",
-      D: "Pura-pura tidak tahu dan membiarkan intervensi terjadi",
-      E: "Meminta saham ditambah dua kali lipat sebelum menyetujui bantuan"
+      A: "Asesmen Portofolio Berbasis Proyek Riset Studi Kasus Nyata (Case-Based Project Assessment)",
+      B: "Ujian Pilihan Ganda Singkat 10 Soal Tanpa Pembahasan",
+      C: "Tugas Merangkum Buku Teks 50 Halaman Secara Manual",
+      D: "Absensi Kehadiran Kuliah 100%",
+      E: "Ujian Lisan Hafalan Definisi Istilah"
     },
-    tkp_key: { A: 5, B: 1, C: 2, D: 3, E: 1 },
+    answer: "A",
     solution: {
-      concept: "Kode Etik Anggota DPR RI & Komitmen Mutlak Independensi Penegakan Hukum (Anti-Korupsi).",
+      concept: "Konstruktivisme & Outcome-Based Education (OBE) dalam Kurikulum Perguruan Tinggi Modern.",
       steps: [
-        "Opsi A mencerminkan ketaatan mutlak pada Kode Etik DPR: Menolak tegas intervensi kasus hukum, menjaga independensi KPK/Kejaksaan, & melaporkan suap (Skor 5)."
+        "Metode OBE menuntut alignment antara CPL (kemampuan pemecahan masalah kritis) dan metode asesmen.",
+        "Case-Based Project Assessment mengukur kemampuan mahasiswa dalam memecahkan masalah nyata industri secara autentik."
       ],
       traps: {
-        B: "Tindak pidana korupsi & pelanggaran berat sumpah jabatan.",
-        E: "Pemerasan dan kejahatan jabatan."
+        B: "Pilihan ganda singkat tidak mengukur pemecahan masalah kompleks.",
+        C: "Merangkum buku hanya tingkat kognitif rendah.",
+        D: "Absensi bukan alat ukur capaian kognitif.",
+        E: "Hafalan tidak setara dengan pemecahan masalah kritis."
       }
     }
   }
 ];
 
 async function main() {
-  console.log("🌱 Seeding ZanBimbel v3 Database (UTBK, CPNS, REKRUTMEN, DEWAN RI)...");
+  console.log("🌱 Seeding ZanBimbel v3 Database (UTBK, CPNS, REKRUTMEN, DEWAN RI, DOSEN)...");
 
   console.log("📦 Seeding Taxonomy Skills...");
   for (const skill of INITIAL_TAXONOMY) {

@@ -1,4 +1,4 @@
-export type Track = "UTBK" | "CPNS" | "REKRUTMEN" | "DEWAN_RI";
+export type Track = "UTBK" | "CPNS" | "REKRUTMEN" | "DEWAN_RI" | "DOSEN";
 
 export type ItemType = "mcq" | "tkp_likert";
 

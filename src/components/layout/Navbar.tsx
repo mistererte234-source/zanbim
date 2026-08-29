@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Compass, Target, BookOpen, Crown, ShieldAlert, Award, Briefcase, Landmark } from "lucide-react";
+import { Sparkles, Compass, Target, BookOpen, Crown, ShieldAlert, Briefcase, Landmark, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SignatureBar } from "./SignatureBar";
 import { Track } from "@/lib/types";
@@ -66,7 +66,7 @@ export function Navbar() {
               <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
                 ZanBimbel <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">v3</span>
               </span>
-              <span className="text-[10px] text-zinc-400 font-medium tracking-wide">Enterprise Learning & Test AI</span>
+              <span className="text-[10px] text-zinc-400 font-medium tracking-wide">Enterprise Adaptive Platform</span>
             </div>
           </Link>
 
@@ -129,10 +129,10 @@ export function Navbar() {
             </Link>
           </nav>
 
-          {/* 4 Track Selector (UTBK, CPNS, REKRUTMEN HRD, DEWAN RI) & Pro Status */}
+          {/* 5 Track Selector (UTBK, CPNS, REKRUTMEN HRD, DEWAN RI, DOSEN) */}
           <div className="flex items-center gap-2">
             
-            {/* 4 Track Switcher */}
+            {/* 5 Track Switcher */}
             <div className="flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800 text-xs">
               <button
                 onClick={() => changeTrack("UTBK")}
@@ -163,10 +163,10 @@ export function Navbar() {
                     ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                     : "text-zinc-500 hover:text-zinc-300"
                 }`}
-                title="Tes IQ & Rekrutmen Karyawan HRD"
+                title="Tes IQ & Rekrutmen HRD"
               >
                 <Briefcase className="w-3 h-3" />
-                HRD IQ
+                HRD
               </button>
               <button
                 onClick={() => changeTrack("DEWAN_RI")}
@@ -178,7 +178,19 @@ export function Navbar() {
                 title="Tes Kelayakan Calon Anggota DPR RI"
               >
                 <Landmark className="w-3 h-3" />
-                Dewan RI
+                Dewan
+              </button>
+              <button
+                onClick={() => changeTrack("DOSEN")}
+                className={`px-2 py-1 rounded font-bold transition-all flex items-center gap-1 ${
+                  track === "DOSEN"
+                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/40"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+                title="Seleksi Dosen PTN & PTS (NIDN)"
+              >
+                <GraduationCap className="w-3 h-3" />
+                Dosen
               </button>
             </div>
 
