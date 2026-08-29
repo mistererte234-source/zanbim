@@ -4,7 +4,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
-import { PrayerTimesBottomWidget } from "@/components/layout/PrayerTimesBottomWidget";
 import { VisitorTracker } from "@/components/analytics/VisitorTracker";
 
 export const viewport: Viewport = {
@@ -65,7 +64,6 @@ export default function RootLayout({
         <main className="flex-1 w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-6">
           {children}
         </main>
-        <PrayerTimesBottomWidget />
         <Footer />
         <BottomTabBar />
       </body>

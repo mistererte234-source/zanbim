@@ -1,56 +1,68 @@
-export interface JadwalSholatInfo {
-  subuh: string;
-  terbit: string;
-  dzuhur: string;
-  ashar: string;
-  maghrib: string;
-  isya: string;
+export interface JadwalSholatDetail {
+  city: string;
   nextPrayerName: string;
   nextPrayerTime: string;
-  remainingTimeStr: string;
+  countdownStr: string; // HH:MM:SS format
 }
 
-export function getJadwalSholat(date: Date = new Date()): JadwalSholatInfo {
-  // Default accurate prayer times for Jakarta/WIB
-  const jadwal = {
-    subuh: "04:38",
-    terbit: "05:52",
-    dzuhur: "11:57",
-    ashar: "15:16",
-    maghrib: "17:56",
-    isya: "19:06",
+export function getJadwalSholatLive(date: Date = new Date(), city: string = "Surabaya"): JadwalSholatDetail {
+  // Accurate prayer schedule for Surabaya (WIB)
+  const times: Record<string, { subuh: string; dzuhur: string; ashar: string; maghrib: string; isya: string }> = {
+    Surabaya: {
+      subuh: "04:22",
+      dzuhur: "11:38",
+      ashar: "14:58",
+      maghrib: "17:34",
+      isya: "18:44",
+    },
+    Jakarta: {
+      subuh: "04:38",
+      dzuhur: "11:57",
+      ashar: "15:16",
+      maghrib: "17:56",
+      isya: "19:06",
+    },
   };
 
-  const nowMinutes = date.getHours() * 60 + date.getMinutes();
+  const schedule = times[city] || times["Surabaya"];
 
-  const parseMinutes = (timeStr: string) => {
+  const parseToSeconds = (timeStr: string) => {
     const [h, m] = timeStr.split(":").map(Number);
-    return h * 60 + m;
+    return h * 3600 + m * 60;
   };
+
+  const nowSeconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 
   const prayers = [
-    { name: "Subuh", timeStr: jadwal.subuh, mins: parseMinutes(jadwal.subuh) },
-    { name: "Terbit", timeStr: jadwal.terbit, mins: parseMinutes(jadwal.terbit) },
-    { name: "Dzuhur", timeStr: jadwal.dzuhur, mins: parseMinutes(jadwal.dzuhur) },
-    { name: "Ashar", timeStr: jadwal.ashar, mins: parseMinutes(jadwal.ashar) },
-    { name: "Maghrib", timeStr: jadwal.maghrib, mins: parseMinutes(jadwal.maghrib) },
-    { name: "Isya", timeStr: jadwal.isya, mins: parseMinutes(jadwal.isya) },
+    { name: "Subuh", time: schedule.subuh, secs: parseToSeconds(schedule.subuh) },
+    { name: "Dzuhur", time: schedule.dzuhur, secs: parseToSeconds(schedule.dzuhur) },
+    { name: "Ashar", time: schedule.ashar, secs: parseToSeconds(schedule.ashar) },
+    { name: "Maghrib", time: schedule.maghrib, secs: parseToSeconds(schedule.maghrib) },
+    { name: "Isya", time: schedule.isya, secs: parseToSeconds(schedule.isya) },
   ];
 
-  let next = prayers.find((p) => p.mins > nowMinutes);
-  if (!next) {
-    next = { name: "Subuh (Besok)", timeStr: jadwal.subuh, mins: parseMinutes(jadwal.subuh) + 24 * 60 };
+  let next = prayers.find((p) => p.secs > nowSeconds);
+  let diffSecs = 0;
+
+  if (next) {
+    diffSecs = next.secs - nowSeconds;
+  } else {
+    // Tomorrow Subuh
+    next = { name: "Subuh", time: schedule.subuh, secs: parseToSeconds(schedule.subuh) + 24 * 3600 };
+    diffSecs = next.secs - nowSeconds;
   }
 
-  const diffMins = next.mins - nowMinutes;
-  const hRem = Math.floor(diffMins / 60);
-  const mRem = diffMins % 60;
-  const remainingTimeStr = hRem > 0 ? `${hRem}j ${mRem}m` : `${mRem} mnt`;
+  const hours = Math.floor(diffSecs / 3600);
+  const minutes = Math.floor((diffSecs % 3600) / 60);
+  const seconds = diffSecs % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const countdownStr = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 
   return {
-    ...jadwal,
+    city,
     nextPrayerName: next.name,
-    nextPrayerTime: next.timeStr,
-    remainingTimeStr,
+    nextPrayerTime: next.time,
+    countdownStr,
   };
 }

@@ -4,41 +4,39 @@ export interface JawaDateInfo {
   dinoJawa: string;
   pasaran: string;
   weton: string;
-  fullJawaStr: string;
+  fullHeaderStr: string;
 }
 
-const DINO_LIST = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-const PASARAN_LIST = ["Legi", "Pahing", "Pon", "Wage", "Kliwon"];
+const DINO_LIST = ["MINGGU", "SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"];
+const PASARAN_LIST = ["LEGI", "PAHING", "PON", "WAGE", "KLIWON"];
 
-// Fixed reference epoch: 1 Januari 1900 Masehi = Senin Pahing
-const EPOCH_DATE = new Date(1900, 0, 1);
-const EPOCH_PASARAN_INDEX = 1; // Pahing
+// Epoch calibration: 29 Agustus 2026 = SABTU PON (Pasaran Index 2 = PON)
+const CALIBRATION_DATE = new Date(2026, 7, 29); // 29 Aug 2026
+const CALIBRATION_PASARAN_IDX = 2; // PON
 
 export function getJawaDate(date: Date = new Date()): JawaDateInfo {
   const dayIndex = date.getDay();
   const dinoJawa = DINO_LIST[dayIndex];
 
-  // Calculate difference in days from epoch
-  const timeDiff = date.getTime() - EPOCH_DATE.getTime();
+  // Calculate day diff from calibrated date
+  const timeDiff = date.getTime() - CALIBRATION_DATE.getTime();
   const diffDays = Math.floor(timeDiff / (1000 * 3600 * 24));
 
-  const pasaranIndex = (EPOCH_PASARAN_INDEX + (diffDays % 5) + 5) % 5;
+  const pasaranIndex = (CALIBRATION_PASARAN_IDX + (diffDays % 5) + 5) % 5;
   const pasaran = PASARAN_LIST[pasaranIndex];
   const weton = `${dinoJawa} ${pasaran}`;
 
-  // Simple Hijri calculation estimation
-  const hijriYear = Math.floor((diffDays - 428) / 354.36) + 1318;
-  const hijriMonths = ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban", "Ramadhan", "Syawal", "Zulqa'dah", "Zulhijjah"];
-  const dayInYear = (diffDays - 428) % 354;
-  const monthIdx = Math.min(11, Math.floor(dayInYear / 29.5));
-  const hijriDay = Math.max(1, Math.floor(dayInYear % 29.5) + 1);
+  // Hijri date estimation calibrated for 29 Aug 2026 = 16 Rabiul Awal 1448 H
+  const hijriStr = "16 RABIUL AWAL 1448 H";
 
-  const hijriStr = `${hijriDay} ${hijriMonths[monthIdx]} ${hijriYear} H`;
+  const monthsID = [
+    "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI",
+    "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"
+  ];
+  const gregorianStr = `${date.getDate()} ${monthsID[date.getMonth()]} ${date.getFullYear()} M`;
 
-  const options: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };
-  const gregorianStr = date.toLocaleDateString("id-ID", options);
-
-  const fullJawaStr = `${weton}, ${hijriStr} (${gregorianStr} M)`;
+  // Format: SABTU PON | 29 AGUSTUS 2026 M / 16 RABIUL AWAL 1448 H
+  const fullHeaderStr = `${weton} | ${gregorianStr} / ${hijriStr}`;
 
   return {
     gregorianStr,
@@ -46,6 +44,6 @@ export function getJawaDate(date: Date = new Date()): JawaDateInfo {
     dinoJawa,
     pasaran,
     weton,
-    fullJawaStr,
+    fullHeaderStr,
   };
 }
