@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  name               String?
+  profile            Profile?
+  targets            Target[]
+  sessions           Session[]
+  attempts           Attempt[]
+  learnerSkillStates LearnerSkillState[]
+  learnerSnapshots   LearnerSnapshot[]
+  plans              Plan[]
+  aiThreads          AiThread[]
+  events             Event[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+model Profile {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultTrack String   @default("UTBK") // UTBK | CPNS
+  isPro        Boolean  @default(false)
+  tz           String   @default("Asia/Jakarta")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Ruleset {
+  id        String   @id @default(uuid())
+  track     String   // UTBK | CPNS
+  year      Int
+  payload   String   // JSON string of ruleset config
+  createdAt DateTime @default(now())
+
+  @@unique([track, year])
+}
+
+model Skill {
+  code      String   @id // e.g. utbk.pm.aljabar.persamaan
+  track     String   // UTBK | CPNS
+  subtest   String   // PM | PU | TIU | TWK | TKP | etc
+  domain    String
+  label     String
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model Item {
+  id             String
+  version        Int      @default(1)
+  itemType       String   // mcq | tkp_likert
+  track          String   // UTBK | CPNS
+  subtest        String
+  skillCode      String
+  difficulty     Int      @default(2) // 1 | 2 | 3
+  status         String   @default("draft") // draft | validate | review | published | archived
+  payload        String   // JSON string of complete item (stem, options, answer/tkp_key, solution)
+  diagnosticOnly Boolean  @default(false)
+  sourceType     String   @default("original")
+  parentId       String?
+  variantType    String?
+  createdAt      DateTime @default(now())
+
+  @@id([id, version])
+}
+
+model ItemReview {
+  id          String   @id @default(uuid())
+  itemId      String
+  itemVersion Int
+  reviewer    String
+  verdict     String   // approved | rejected | needs_revision
+  comments    String?
+  createdAt   DateTime @default(now())
+}
+
+model Target {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track     String   // UTBK | CPNS
+  payload   String   // JSON string target PTN/prodi or formasi/instansi
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TargetBenchmark {
+  id          String   @id @default(uuid())
+  year        Int
+  ptn         String
+  prodi       String
+  low         Float
+  competitive Float
+  high        Float
+  source      String?
+  n           Int      @default(0)
+  quality     String   @default("none") // high | medium | low | none
+  createdAt   DateTime @default(now())
+
+  @@unique([year, ptn, prodi])
+}
+
+model Session {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String        // diagnostic | drill | tryout | tutor
+  track       String        // UTBK | CPNS
+  status      String        @default("in_progress") // in_progress | completed | abandoned
+  startedAt   DateTime      @default(now())
+  completedAt DateTime?
+  items       SessionItem[]
+  attempts    Attempt[]
+}
+
+model SessionItem {
+  id          String   @id @default(uuid())
+  sessionId   String
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  itemId      String
+  itemVersion Int
+  orderIndex  Int
+  state       String   @default("unanswered") // unanswered | answered | flagged
+}
+
+model Attempt {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId   String?
+  session     Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  itemId      String
+  itemVersion Int
+  choice      String   // A | B | C | D | E
+  score       Float    // MCQ: 1.0/0.0, TKP: 1..5
+  timeMs      Int
+  errorTag    String?  // konsep | hitung | salah_baca | waktu
+  createdAt   DateTime @default(now())
+}
+
+model LearnerSkillState {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skillCode       String
+  n               Int      @default(0)
+  nCorrect        Int      @default(0)
+  weightedAcc     Float    @default(0.0)
+  medianMs        Int      @default(0)
+  lastPracticedAt DateTime @default(now())
+
+  @@unique([userId, skillCode])
+}
+
+model LearnerSnapshot {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceSessionId String?
+  indexesJson     String   // JSON string of scores (indeks UTBK / SKD breakdown)
+  createdAt       DateTime @default(now())
+}
+
+model Plan {
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track        String
+  currentStage Int            @default(0) // 0..3
+  stagesJson   String         // JSON string of 4 stages configuration
+  dailyMissions DailyMission[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model DailyMission {
+  id         String   @id @default(uuid())
+  planId     String
+  plan       Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  date       String   // YYYY-MM-DD
+  skillCode  String
+  itemIdsJson String  // JSON array of item ids
+  status     String   @default("pending") // pending | completed
+  createdAt  DateTime @default(now())
+}
+
+model AiThread {
+  id           String   @id @default(uuid())
+  itemId       String
+  itemVersion  Int
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messagesJson String   // JSON array of messages
+  tokens       Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String   // diagnostic_completed | answer_submitted | explanation_opened | mission_completed | tryout_completed | tutor_message_sent
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  payloadJson String
+  timestamp   DateTime @default(now())
+}
