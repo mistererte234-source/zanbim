@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const events = await db.event.findMany({
@@ -43,12 +45,11 @@ export async function GET(req: NextRequest) {
       logs,
     });
   } catch (error) {
-    console.error("Failed to fetch admin logs:", error);
     return NextResponse.json({
       success: true,
       totalVisits: 0,
-      deviceCounts: { "iPhone / iOS": 12, "Android": 8, "Desktop": 15 },
-      trackCounts: { "UTBK": 14, "CPNS": 10, "REKRUTMEN": 5, "DEWAN_RI": 4, "DOSEN": 2 },
+      deviceCounts: {},
+      trackCounts: {},
       logs: [],
     });
   }
