@@ -91,46 +91,44 @@ export function Navbar() {
 
   return (
     <>
-      {/* Signature Bar: Tanggal Jawa */}
+      {/* Signature Bar: Tanggal Jawa & Hijriah */}
       <SignatureBar />
 
-      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border/50 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-white/10 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
           
-          {/* Brand Logo with 7x Click Secret Action */}
+          {/* Brand Logo with 7x Click Secret Action (No Frame Box, Pure Transparent PNG with Outer Glow) */}
           <div
             onClick={handleLogoClick}
-            className="flex items-center gap-2 sm:gap-3 group shrink-0 cursor-pointer select-none"
-            title="ZanBimbel"
+            className="flex items-center gap-2.5 sm:gap-3 group shrink-0 cursor-pointer select-none py-1"
+            title="ZanBimbel (Klik 7x untuk Portal Rahasia)"
           >
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-glow overflow-hidden active:scale-95 transition-transform">
-              <div className="w-full h-full bg-background rounded-[11px] flex items-center justify-center overflow-hidden">
-                <img
-                  src="/logo.png"
-                  alt="ZanBimbel Logo"
-                  className="w-full h-full object-contain p-0.5 sm:p-1 group-hover:scale-110 transition-transform duration-300"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-              </div>
+            <div className="relative flex items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="ZanBimbel Logo"
+                className="h-8 sm:h-10 w-auto object-contain logo-outer-glow"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = "none";
+                }}
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-sm sm:text-lg tracking-tight text-white flex items-center gap-1">
-                ZanBimbel <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">v3</span>
+                ZanBimbel <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">v3</span>
               </span>
               <span className="text-[9px] text-zinc-400 font-medium tracking-wide hidden xs:inline">Adaptive Learning AI</span>
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1.5 rounded-full border border-zinc-800/80">
+          {/* Desktop Navigation Links (Frosted Glass Style) */}
+          <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/40 p-1.5 rounded-full border border-white/10 backdrop-blur-xl">
             <Link
               href="/dashboard"
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname === "/dashboard"
-                  ? "bg-indigo-600 text-white shadow-glow"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-indigo-600/90 text-white shadow-glow"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <Compass className="w-3.5 h-3.5" />
@@ -140,8 +138,8 @@ export function Navbar() {
               href="/diagnosis"
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/diagnosis")
-                  ? "bg-indigo-600 text-white shadow-glow"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-indigo-600/90 text-white shadow-glow"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <Target className="w-3.5 h-3.5" />
@@ -151,8 +149,8 @@ export function Navbar() {
               href="/drill"
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/drill")
-                  ? "bg-indigo-600 text-white shadow-glow"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-indigo-600/90 text-white shadow-glow"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
@@ -162,8 +160,8 @@ export function Navbar() {
               href="/tryout"
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/tryout")
-                  ? "bg-indigo-600 text-white shadow-glow"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
+                  ? "bg-indigo-600/90 text-white shadow-glow"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -175,14 +173,14 @@ export function Navbar() {
           <div className="flex items-center gap-1.5 sm:gap-2">
             
             {/* Desktop: 5 Track Buttons */}
-            <div className="hidden md:flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
+            <div className="hidden md:flex items-center bg-zinc-950/60 p-1 rounded-2xl border border-white/10 text-xs backdrop-blur-xl">
               {(["UTBK", "CPNS", "REKRUTMEN", "DEWAN_RI", "DOSEN"] as Track[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => changeTrack(t)}
-                  className={`px-2 py-1 rounded-lg font-bold transition-all text-[11px] ${
+                  className={`px-2.5 py-1 rounded-xl font-bold transition-all text-[11px] ${
                     track === t
-                      ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm"
+                      ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 shadow-glow"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
@@ -195,7 +193,7 @@ export function Navbar() {
             <div className="md:hidden relative">
               <button
                 onClick={() => setShowMobileTrackMenu(!showMobileTrackMenu)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-indigo-300 shadow-sm"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl glass-panel text-xs font-bold text-indigo-300 shadow-sm"
               >
                 <Layers className="w-3 h-3 text-indigo-400" />
                 <span>{trackLabels[track].badge}</span>
@@ -204,7 +202,7 @@ export function Navbar() {
 
               {/* Mobile Track Sheet Dropdown */}
               {showMobileTrackMenu && (
-                <div className="absolute right-0 top-9 z-50 w-48 glass-panel p-2 rounded-2xl border border-zinc-800 shadow-glow flex flex-col gap-1">
+                <div className="absolute right-0 top-10 z-50 w-48 glass-panel p-2 rounded-2xl border border-white/15 shadow-glow flex flex-col gap-1">
                   <span className="text-[10px] uppercase font-bold text-zinc-400 px-2 py-1">Pilih Jalur Asesmen</span>
                   {(["UTBK", "CPNS", "REKRUTMEN", "DEWAN_RI", "DOSEN"] as Track[]).map((t) => (
                     <button
@@ -213,7 +211,7 @@ export function Navbar() {
                       className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between ${
                         track === t
                           ? "bg-indigo-600 text-white"
-                          : "text-zinc-300 hover:bg-zinc-800/60"
+                          : "text-zinc-300 hover:bg-white/5"
                       }`}
                     >
                       <span>{trackLabels[t].label}</span>
@@ -227,10 +225,10 @@ export function Navbar() {
             {/* Pro Status Toggle */}
             <button
               onClick={togglePro}
-              className={`px-2 sm:px-2.5 py-1 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
                 isPro
-                  ? "bg-amber-500/15 text-amber-400 border-amber-500/40 shadow-glow"
-                  : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700"
+                  ? "bg-amber-500/20 text-amber-400 border-amber-500/50 shadow-glow"
+                  : "glass-panel text-zinc-400 hover:border-zinc-600"
               }`}
               title="Klik untuk toggle status Pro/Free"
             >
