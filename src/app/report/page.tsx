@@ -13,7 +13,9 @@ function ReportContent() {
   const [openItemIndex, setOpenItemIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("zanbim_last_report");
+    const rawSession = sessionStorage.getItem("zanbim_last_report");
+    const rawLocal = localStorage.getItem("zanbim_diagnosis_result");
+    const raw = rawSession || rawLocal;
     const savedTarget = localStorage.getItem("zanbim_target") || "Target Belum Diatur";
     setTargetName(savedTarget);
 
@@ -28,13 +30,17 @@ function ReportContent() {
 
   if (!reportData) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center flex flex-col items-center gap-4">
-        <AlertTriangle className="w-12 h-12 text-amber-400 animate-bounce" />
+      <div className="max-w-xl mx-auto py-12 px-3 text-center flex flex-col items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+          <AlertTriangle className="w-7 h-7 text-amber-400" />
+        </div>
         <h2 className="text-xl font-extrabold text-white">Belum Ada Data Hasil Diagnosis</h2>
-        <p className="text-sm text-zinc-400">Silakan ikuti tes diagnosis terlebih dahulu untuk melihat hasil analisis.</p>
+        <p className="text-xs sm:text-sm text-zinc-400 max-w-md leading-relaxed">
+          Silakan ikuti tes diagnosis adaptif terlebih dahulu untuk melihat analisis gap kemampuan Anda.
+        </p>
         <button
           onClick={() => router.push("/diagnosis")}
-          className="mt-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-glow hover:opacity-90"
+          className="mt-2 px-6 py-3.5 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-glow active:scale-95 transition-all"
         >
           Mulai Tes Diagnosis Sekarang
         </button>
@@ -49,23 +55,24 @@ function ReportContent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 flex flex-col gap-8">
+    <div className="max-w-3xl mx-auto py-4 sm:py-8 px-1 sm:px-4 flex flex-col gap-6 sm:gap-8">
+      
       {/* Target Banner */}
-      <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-zinc-900/60 shadow-glow">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-xl">
+      <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-zinc-900/60 shadow-glow">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 font-bold text-lg sm:text-xl shrink-0">
             🎯
           </div>
           <div>
-            <span className="text-xs text-indigo-300 font-semibold uppercase tracking-wider">
+            <span className="text-[10px] sm:text-xs text-indigo-300 font-semibold uppercase tracking-wider">
               Laporan Posisi vs Target ({track})
             </span>
-            <h2 className="text-xl font-extrabold text-white">{targetName}</h2>
+            <h2 className="text-base sm:text-xl font-extrabold text-white leading-tight">{targetName}</h2>
           </div>
         </div>
         <button
           onClick={() => router.push("/onboarding")}
-          className="text-xs text-zinc-400 hover:text-white underline"
+          className="text-xs text-zinc-400 hover:text-white underline self-end sm:self-center"
         >
           Ubah Target
         </button>
@@ -73,13 +80,13 @@ function ReportContent() {
 
       {/* TRACK 1: UTBK REPORT */}
       {track === "UTBK" && (
-        <div className="glass-panel p-8 rounded-3xl border border-zinc-800 text-center flex flex-col items-center gap-3 relative overflow-hidden">
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-zinc-800 text-center flex flex-col items-center gap-2.5 relative overflow-hidden shadow-glow">
           <div className="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
           <span className="text-xs text-zinc-400 font-medium">Estimasi Indeks Kemampuan UTBK</span>
-          <div className="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 font-mono tracking-tight">
-            {utbkIndex} <span className="text-xl text-zinc-500 font-normal">/ 800</span>
+          <div className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-400 font-mono tracking-tight">
+            {utbkIndex} <span className="text-lg sm:text-xl text-zinc-500 font-normal">/ 800</span>
           </div>
-          <p className="text-xs text-zinc-400 max-w-md">
+          <p className="text-xs text-zinc-400 max-w-md leading-relaxed">
             Skor dihitung berdasarkan pembobotan tingkat kesulitan soal (Diff 1: 1.0, Diff 2: 1.25, Diff 3: 1.6).
           </p>
         </div>
@@ -87,41 +94,41 @@ function ReportContent() {
 
       {/* TRACK 2: CPNS REPORT */}
       {track === "CPNS" && cpnsResult && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
           {!cpnsResult.isPassedAllThresholds && (
-            <div className="p-5 rounded-2xl bg-rose-950/50 border border-rose-500/60 flex items-start gap-4 text-rose-200 animate-pulse">
-              <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
+            <div className="p-4 sm:p-5 rounded-2xl bg-rose-950/50 border border-rose-500/60 flex items-start gap-3 text-rose-200 animate-pulse">
+              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-extrabold text-white text-sm">Peringatan Syarat Passing Grade CPNS!</h4>
-                <p className="text-xs text-rose-300 mt-1">
-                  Subtest <strong>{cpnsResult.belowThreshold.join(", ")}</strong> berada di bawah nilai ambang batas minimal. Kelulusan CPNS gugur jika salah satu subtest tidak mencapai passing grade.
+                <h4 className="font-extrabold text-white text-xs sm:text-sm">Peringatan Syarat Passing Grade CPNS!</h4>
+                <p className="text-xs text-rose-300 mt-1 leading-relaxed">
+                  Subtest <strong>{cpnsResult.belowThreshold.join(", ")}</strong> di bawah passing grade. Seluruh subtest wajib lolos ambang batas.
                 </p>
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
-            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
-              <span className="text-xs text-zinc-400">TWK (Min 65)</span>
-              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.twk < 65 ? "text-rose-400" : "text-emerald-400"}`}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 text-center">
+            <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-zinc-800">
+              <span className="text-[11px] text-zinc-400">TWK (Min 65)</span>
+              <div className={`text-xl sm:text-2xl font-black mt-1 font-mono ${cpnsResult.twk < 65 ? "text-rose-400" : "text-emerald-400"}`}>
                 {cpnsResult.twk}
               </div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
-              <span className="text-xs text-zinc-400">TIU (Min 80)</span>
-              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.tiu < 80 ? "text-rose-400" : "text-emerald-400"}`}>
+            <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-zinc-800">
+              <span className="text-[11px] text-zinc-400">TIU (Min 80)</span>
+              <div className={`text-xl sm:text-2xl font-black mt-1 font-mono ${cpnsResult.tiu < 80 ? "text-rose-400" : "text-emerald-400"}`}>
                 {cpnsResult.tiu}
               </div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl border border-zinc-800">
-              <span className="text-xs text-zinc-400">TKP (Min 166)</span>
-              <div className={`text-2xl font-black mt-1 font-mono ${cpnsResult.tkp < 166 ? "text-rose-400" : "text-emerald-400"}`}>
+            <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-zinc-800">
+              <span className="text-[11px] text-zinc-400">TKP (Min 166)</span>
+              <div className={`text-xl sm:text-2xl font-black mt-1 font-mono ${cpnsResult.tkp < 166 ? "text-rose-400" : "text-emerald-400"}`}>
                 {cpnsResult.tkp}
               </div>
             </div>
-            <div className="glass-panel p-5 rounded-2xl border border-indigo-500/40 bg-indigo-950/20">
-              <span className="text-xs text-indigo-300 font-bold">Total SKD</span>
-              <div className="text-2xl font-black mt-1 font-mono text-white">
+            <div className="glass-panel p-3.5 sm:p-5 rounded-2xl border border-indigo-500/40 bg-indigo-950/20">
+              <span className="text-[11px] text-indigo-300 font-bold">Total SKD</span>
+              <div className="text-xl sm:text-2xl font-black mt-1 font-mono text-white">
                 {cpnsResult.total}
               </div>
             </div>
@@ -131,76 +138,76 @@ function ReportContent() {
 
       {/* TRACK 3: REKRUTMEN HRD REPORT */}
       {track === "REKRUTMEN" && iqResult && (
-        <div className="glass-panel p-8 rounded-3xl border border-emerald-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-emerald-950/30 via-zinc-900 to-zinc-950 shadow-glow">
-          <Briefcase className="w-10 h-10 text-emerald-400 mb-1" />
-          <span className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Hasil Asesmen Rekrutmen Karyawan HRD</span>
-          <div className="text-5xl sm:text-6xl font-black text-emerald-400 font-mono tracking-tight">
-            IQ {iqResult.iqScore} <span className="text-xl text-zinc-500 font-normal">/ 150</span>
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/40 text-center flex flex-col items-center gap-2.5 bg-gradient-to-br from-emerald-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <Briefcase className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-400 mb-1" />
+          <span className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Hasil Asesmen Rekrutmen HRD</span>
+          <div className="text-4xl sm:text-6xl font-black text-emerald-400 font-mono tracking-tight">
+            IQ {iqResult.iqScore} <span className="text-lg sm:text-xl text-zinc-500 font-normal">/ 150</span>
           </div>
-          <div className="px-4 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold mt-1">
+          <div className="px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold mt-1">
             Kategori: {iqResult.category}
           </div>
-          <p className="text-xs text-zinc-400 max-w-md mt-2">
-            Hasil pengujian ini diukur berdasar Matriks Raven Spasial, Logika Numerik, & Psikotes Kepemimpinan HRD Standar Perusahaan Top-Tier.
+          <p className="text-xs text-zinc-400 max-w-md mt-1 leading-relaxed">
+            Hasil diukur berdasar Matriks Raven Spasial, Logika Numerik, & Psikotes Kepemimpinan Standar Perusahaan Top.
           </p>
         </div>
       )}
 
       {/* TRACK 4: DEWAN RI REPORT */}
       {track === "DEWAN_RI" && dewanResult && (
-        <div className="glass-panel p-8 rounded-3xl border border-amber-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-amber-950/30 via-zinc-900 to-zinc-950 shadow-glow">
-          <Landmark className="w-10 h-10 text-amber-400 mb-1" />
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-amber-500/40 text-center flex flex-col items-center gap-2.5 bg-gradient-to-br from-amber-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <Landmark className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 mb-1" />
           <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">Hasil Uji Fit & Proper Test DPR RI</span>
-          <div className="text-5xl sm:text-6xl font-black text-amber-400 font-mono tracking-tight">
-            {dewanResult.percentage}% <span className="text-xl text-zinc-500 font-normal">Skor Kelayakan</span>
+          <div className="text-4xl sm:text-6xl font-black text-amber-400 font-mono tracking-tight">
+            {dewanResult.percentage}% <span className="text-lg sm:text-xl text-zinc-500 font-normal">Skor Kelayakan</span>
           </div>
-          <div className="px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
-            <Award className="w-4 h-4 text-amber-400" />
+          <div className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
+            <Award className="w-3.5 h-3.5 text-amber-400" />
             Status: {dewanResult.status}
           </div>
-          <p className="text-xs text-zinc-400 max-w-md mt-2">
-            Mengukur kesiapan fungsi Legislasi, Penganggaran APBN, & Wawasan Regulasi Komisi DPR RI pilihan Anda.
+          <p className="text-xs text-zinc-400 max-w-md mt-1 leading-relaxed">
+            Mengukur kesiapan fungsi Legislasi, Penganggaran APBN, & Wawasan Regulasi Komisi DPR RI.
           </p>
         </div>
       )}
 
       {/* TRACK 5: DOSEN REPORT */}
       {track === "DOSEN" && dosenResult && (
-        <div className="glass-panel p-8 rounded-3xl border border-purple-500/40 text-center flex flex-col items-center gap-3 bg-gradient-to-br from-purple-950/30 via-zinc-900 to-zinc-950 shadow-glow">
-          <GraduationCap className="w-10 h-10 text-purple-400 mb-1" />
-          <span className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Hasil Seleksi & Asesmen Dosen PTN/PTS</span>
-          <div className="text-5xl sm:text-6xl font-black text-purple-400 font-mono tracking-tight">
-            {dosenResult.percentage}% <span className="text-xl text-zinc-500 font-normal">Indeks Kualifikasi</span>
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-purple-500/40 text-center flex flex-col items-center gap-2.5 bg-gradient-to-br from-purple-950/30 via-zinc-900 to-zinc-950 shadow-glow">
+          <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 text-purple-400 mb-1" />
+          <span className="text-xs text-purple-300 font-semibold uppercase tracking-wider">Hasil Seleksi Dosen PTN/PTS</span>
+          <div className="text-4xl sm:text-6xl font-black text-purple-400 font-mono tracking-tight">
+            {dosenResult.percentage}% <span className="text-lg sm:text-xl text-zinc-500 font-normal">Indeks Kualifikasi</span>
           </div>
-          <div className="px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
-            <Award className="w-4 h-4 text-purple-400" />
+          <div className="px-3.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-bold mt-1 flex items-center gap-1.5">
+            <Award className="w-3.5 h-3.5 text-purple-400" />
             Status: {dosenResult.status}
           </div>
-          <p className="text-xs text-zinc-400 max-w-md mt-2">
+          <p className="text-xs text-zinc-400 max-w-md mt-1 leading-relaxed">
             Rekomendasi Tim Asesor: <strong>{dosenResult.recommendation}</strong>
           </p>
         </div>
       )}
 
       {/* Top 3 Skill Gaps */}
-      <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-4">
-        <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+      <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-zinc-800 flex flex-col gap-4">
+        <h3 className="font-extrabold text-white text-sm sm:text-base flex items-center gap-2">
           <Target className="w-4 h-4 text-indigo-400" />
           3 Top Gaps (Prioritas Latihan Teratas)
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {topGaps.map((gapItem: any, idx: number) => (
-            <div key={gapItem.skillCode} className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 flex flex-col justify-between gap-3">
+            <div key={gapItem.skillCode} className="p-3.5 sm:p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col justify-between gap-2.5">
               <div>
                 <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Gap #{idx + 1}</span>
-                <h4 className="font-bold text-white text-sm mt-0.5">{gapItem.skillCode}</h4>
-                <span className="text-xs text-zinc-400">Subtest: {gapItem.subtest}</span>
+                <h4 className="font-bold text-white text-xs sm:text-sm mt-0.5 truncate">{gapItem.skillCode}</h4>
+                <span className="text-[11px] text-zinc-400">Subtest: {gapItem.subtest}</span>
               </div>
 
               <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-zinc-800/80">
-                <span className="text-zinc-500">Akurasi: {Math.round(gapItem.accuracy * 100)}%</span>
-                <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">
+                <span className="text-zinc-500 text-[11px]">Akurasi: {Math.round(gapItem.accuracy * 100)}%</span>
+                <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">
                   Priority {(gapItem.priority).toFixed(2)}
                 </span>
               </div>
@@ -210,61 +217,61 @@ function ReportContent() {
 
         <button
           onClick={() => router.push("/drill")}
-          className="w-full mt-2 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-bold text-sm shadow-glow hover:opacity-90 flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-bold text-xs sm:text-sm shadow-glow active:scale-[0.985] hover:opacity-90 flex items-center justify-center gap-2 mt-1"
         >
-          Mulai Misi Drill Terfokus untuk Menutup Gap
+          Mulai Misi Drill untuk Menutup Gap
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
       {/* Item-by-Item Answer Analysis Accordion */}
       {itemAnalysis && itemAnalysis.length > 0 && (
-        <div className="glass-panel p-6 rounded-2xl border border-zinc-800 flex flex-col gap-4">
-          <h3 className="font-extrabold text-white text-base flex items-center gap-2">
+        <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-zinc-800 flex flex-col gap-4">
+          <h3 className="font-extrabold text-white text-sm sm:text-base flex items-center gap-2">
             <BookOpen className="w-4 h-4 text-cyan-400" />
             Rincian Analisis Jawaban Per Nomor
           </h3>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5">
             {itemAnalysis.map((item: any, idx: number) => (
-              <div key={item.id} className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-900/50">
+              <div key={item.id} className="border border-zinc-800 rounded-2xl overflow-hidden bg-zinc-900/50">
                 <button
                   onClick={() => toggleAccordion(idx)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-all"
+                  className="w-full p-3.5 sm:p-4 flex items-center justify-between text-left hover:bg-zinc-800/50 transition-all gap-2"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center font-mono ${
+                  <div className="flex items-center gap-2.5 truncate">
+                    <span className={`w-6 h-6 sm:w-7 sm:h-7 rounded-xl text-xs font-bold flex items-center justify-center font-mono shrink-0 ${
                       item.isCorrect ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
                     }`}>
                       #{idx + 1}
                     </span>
-                    <div>
-                      <span className="text-xs text-zinc-400 line-clamp-1">{item.stem}</span>
-                      <div className="flex items-center gap-2 mt-0.5 text-[11px]">
-                        <span className="text-zinc-300 font-semibold">Pilihan Lo: Option {item.userSelected}</span>
-                        <span className="text-zinc-500">•</span>
+                    <div className="truncate">
+                      <span className="text-xs text-zinc-300 line-clamp-1">{item.stem}</span>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-[10px] sm:text-[11px]">
+                        <span className="text-zinc-400">Pilihan: Option {item.userSelected}</span>
+                        <span className="text-zinc-600">•</span>
                         <span className={item.isCorrect ? "text-emerald-400 font-bold" : "text-rose-400 font-bold"}>
                           {item.isCorrect ? "Benar" : "Salah"} (Skor: {item.scoreGained})
                         </span>
                       </div>
                     </div>
                   </div>
-                  {openItemIndex === idx ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
+                  {openItemIndex === idx ? <ChevronUp className="w-4 h-4 text-zinc-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0" />}
                 </button>
 
                 {openItemIndex === idx && (
-                  <div className="p-4 border-t border-zinc-800 bg-zinc-950/80 text-xs flex flex-col gap-3">
+                  <div className="p-3.5 sm:p-4 border-t border-zinc-800 bg-zinc-950/80 text-xs flex flex-col gap-2.5">
                     {/* Concept */}
                     <div>
                       <span className="font-bold text-indigo-400 block mb-1">💡 Konsep Utama:</span>
-                      <p className="text-zinc-300 leading-relaxed bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">{item.concept}</p>
+                      <p className="text-zinc-300 leading-relaxed bg-zinc-900 p-2.5 rounded-xl border border-zinc-800">{item.concept}</p>
                     </div>
 
                     {/* Solution Steps */}
                     {item.steps && item.steps.length > 0 && (
                       <div>
                         <span className="font-bold text-cyan-400 block mb-1">📝 Langkah Cara Penyelesaian:</span>
-                        <ol className="list-decimal list-inside space-y-1 text-zinc-300 bg-zinc-900 p-2.5 rounded-lg border border-zinc-800">
+                        <ol className="list-decimal list-inside space-y-1 text-zinc-300 bg-zinc-900 p-2.5 rounded-xl border border-zinc-800 leading-relaxed">
                           {item.steps.map((step: string, sIdx: number) => (
                             <li key={sIdx}>{step}</li>
                           ))}
@@ -276,7 +283,7 @@ function ReportContent() {
                     {item.trapExplanation && (
                       <div>
                         <span className="font-bold text-amber-400 block mb-1">⚠️ Penjelasan Jebakan Opsi {item.userSelected}:</span>
-                        <p className="text-amber-200/90 leading-relaxed bg-amber-950/30 p-2.5 rounded-lg border border-amber-500/30">{item.trapExplanation}</p>
+                        <p className="text-amber-200/90 leading-relaxed bg-amber-950/30 p-2.5 rounded-xl border border-amber-500/30">{item.trapExplanation}</p>
                       </div>
                     )}
                   </div>

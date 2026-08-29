@@ -3,69 +3,110 @@
 @tailwind utilities;
 
 :root {
-  --background: 9 9 11;
-  --foreground: 250 250 250;
+  --background: #09090B;
+  --foreground: #F4F4F5;
+  --card: #121215;
+  --card-foreground: #F4F4F5;
+  --popover: #121215;
+  --popover-foreground: #F4F4F5;
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #27272A;
+  --secondary-foreground: #F4F4F5;
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+  --accent: #27272A;
+  --accent-foreground: #F4F4F5;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #27272A;
+  --input: #27272A;
+  --ring: #6366F1;
+  --radius: 1rem;
 }
 
 body {
-  color: rgb(var(--foreground));
-  background-color: #09090B;
+  background-color: var(--background);
+  color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Glassmorphism iOS Utilities */
+/* iOS Glassmorphism & Micro-animations */
 .glass-panel {
-  background: rgba(18, 18, 22, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(18, 18, 22, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.glass-panel-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+.glass-pill {
+  background: rgba(24, 24, 28, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(26, 26, 34, 0.8);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+.ios-card {
+  background: rgba(20, 20, 25, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 1.25rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-input {
-  background: rgba(24, 24, 27, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fafafa;
+.ios-card:active {
+  transform: scale(0.985);
 }
 
-.glass-input:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 15px -3px rgba(99, 102, 241, 0.3);
+.shadow-glow {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
 }
 
-/* Custom Glow Effects */
-.glow-text-indigo {
-  text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+.shadow-glow-cyan {
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
 }
 
-.glow-text-cyan {
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+.shadow-glow-amber {
+  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25);
 }
 
-/* Scrollbar */
+/* Custom iOS Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #09090B;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #27272A;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #3F3F46;
+}
+
+/* iOS Safe Area Padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0.5rem);
+}
+
+/* Hide scrollbar for horizontal scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

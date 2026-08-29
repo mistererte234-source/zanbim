@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Compass, Target, BookOpen, Crown, ShieldAlert, Briefcase, Landmark, GraduationCap } from "lucide-react";
+import { Sparkles, Compass, Target, BookOpen, Crown, ShieldAlert, ChevronDown, Layers } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SignatureBar } from "./SignatureBar";
 import { Track } from "@/lib/types";
@@ -11,6 +11,7 @@ export function Navbar() {
   const pathname = usePathname();
   const [track, setTrack] = useState<Track>("UTBK");
   const [isPro, setIsPro] = useState<boolean>(false);
+  const [showMobileTrackMenu, setShowMobileTrackMenu] = useState<boolean>(false);
 
   useEffect(() => {
     const savedTrack = (localStorage.getItem("zanbim_track") as Track) || "UTBK";
@@ -37,7 +38,16 @@ export function Navbar() {
   const changeTrack = (newTrack: Track) => {
     setTrack(newTrack);
     localStorage.setItem("zanbim_track", newTrack);
+    setShowMobileTrackMenu(false);
     window.dispatchEvent(new Event("zanbim_track_changed"));
+  };
+
+  const trackLabels: Record<Track, { label: string; badge: string; color: string }> = {
+    UTBK: { label: "UTBK SNBT", badge: "UTBK", color: "indigo" },
+    CPNS: { label: "CPNS SKD", badge: "CPNS", color: "cyan" },
+    REKRUTMEN: { label: "Rekrutmen HRD", badge: "HRD IQ", color: "emerald" },
+    DEWAN_RI: { label: "Dewan RI", badge: "Dewan", color: "amber" },
+    DOSEN: { label: "Seleksi Dosen", badge: "Dosen", color: "purple" },
   };
 
   return (
@@ -45,17 +55,17 @@ export function Navbar() {
       {/* Signature Bar: Tanggal Jawa & Jadwal Sholat */}
       <SignatureBar />
 
-      <header className="sticky top-0 z-50 w-full glass-panel border-b border-border/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 w-full glass-panel border-b border-border/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
           
           {/* Brand Logo with Custom Logo.png */}
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-glow overflow-hidden">
+          <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-glow overflow-hidden">
               <div className="w-full h-full bg-background rounded-[11px] flex items-center justify-center overflow-hidden">
                 <img
                   src="/logo.png"
                   alt="ZanBimbel Logo"
-                  className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-contain p-0.5 sm:p-1 group-hover:scale-110 transition-transform duration-300"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = "none";
                   }}
@@ -63,18 +73,18 @@ export function Navbar() {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
-                ZanBimbel <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">v3</span>
+              <span className="font-extrabold text-sm sm:text-lg tracking-tight text-white flex items-center gap-1">
+                ZanBimbel <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">v3</span>
               </span>
-              <span className="text-[10px] text-zinc-400 font-medium tracking-wide">Enterprise Adaptive Platform</span>
+              <span className="text-[9px] text-zinc-400 font-medium tracking-wide hidden xs:inline">Adaptive Learning AI</span>
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-zinc-900/60 p-1.5 rounded-full border border-zinc-800/80">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1.5 rounded-full border border-zinc-800/80">
             <Link
               href="/dashboard"
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname === "/dashboard"
                   ? "bg-indigo-600 text-white shadow-glow"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
@@ -85,7 +95,7 @@ export function Navbar() {
             </Link>
             <Link
               href="/diagnosis"
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/diagnosis")
                   ? "bg-indigo-600 text-white shadow-glow"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
@@ -96,7 +106,7 @@ export function Navbar() {
             </Link>
             <Link
               href="/drill"
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/drill")
                   ? "bg-indigo-600 text-white shadow-glow"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
@@ -107,7 +117,7 @@ export function Navbar() {
             </Link>
             <Link
               href="/tryout"
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/tryout")
                   ? "bg-indigo-600 text-white shadow-glow"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
@@ -118,94 +128,82 @@ export function Navbar() {
             </Link>
             <Link
               href="/admin"
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 pathname.startsWith("/admin")
                   ? "bg-indigo-600 text-white shadow-glow"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
               }`}
             >
               <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
-              Admin CMS
+              Admin
             </Link>
           </nav>
 
-          {/* 5 Track Selector (UTBK, CPNS, REKRUTMEN HRD, DEWAN RI, DOSEN) */}
-          <div className="flex items-center gap-2">
+          {/* Right Header Elements: Track Selector & Pro Toggle */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             
-            {/* 5 Track Switcher */}
-            <div className="flex items-center bg-zinc-950 p-1 rounded-lg border border-zinc-800 text-xs">
+            {/* Desktop: 5 Track Buttons */}
+            <div className="hidden md:flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
+              {(["UTBK", "CPNS", "REKRUTMEN", "DEWAN_RI", "DOSEN"] as Track[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => changeTrack(t)}
+                  className={`px-2 py-1 rounded-lg font-bold transition-all text-[11px] ${
+                    track === t
+                      ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  {trackLabels[t].badge}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile: Sleek iOS Track Pill Dropdown */}
+            <div className="md:hidden relative">
               <button
-                onClick={() => changeTrack("UTBK")}
-                className={`px-2 py-1 rounded font-bold transition-all ${
-                  track === "UTBK"
-                    ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-                title="Jalur UTBK SNBT PTN"
+                onClick={() => setShowMobileTrackMenu(!showMobileTrackMenu)}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-indigo-300 shadow-sm"
               >
-                UTBK
+                <Layers className="w-3 h-3 text-indigo-400" />
+                <span>{trackLabels[track].badge}</span>
+                <ChevronDown className="w-3 h-3 text-zinc-400" />
               </button>
-              <button
-                onClick={() => changeTrack("CPNS")}
-                className={`px-2 py-1 rounded font-bold transition-all ${
-                  track === "CPNS"
-                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-                title="Jalur CPNS SKD"
-              >
-                CPNS
-              </button>
-              <button
-                onClick={() => changeTrack("REKRUTMEN")}
-                className={`px-2 py-1 rounded font-bold transition-all flex items-center gap-1 ${
-                  track === "REKRUTMEN"
-                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-                title="Tes IQ & Rekrutmen HRD"
-              >
-                <Briefcase className="w-3 h-3" />
-                HRD
-              </button>
-              <button
-                onClick={() => changeTrack("DEWAN_RI")}
-                className={`px-2 py-1 rounded font-bold transition-all flex items-center gap-1 ${
-                  track === "DEWAN_RI"
-                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-                title="Tes Kelayakan Calon Anggota DPR RI"
-              >
-                <Landmark className="w-3 h-3" />
-                Dewan
-              </button>
-              <button
-                onClick={() => changeTrack("DOSEN")}
-                className={`px-2 py-1 rounded font-bold transition-all flex items-center gap-1 ${
-                  track === "DOSEN"
-                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/40"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-                title="Seleksi Dosen PTN & PTS (NIDN)"
-              >
-                <GraduationCap className="w-3 h-3" />
-                Dosen
-              </button>
+
+              {/* Mobile Track Sheet Dropdown */}
+              {showMobileTrackMenu && (
+                <div className="absolute right-0 top-9 z-50 w-48 glass-panel p-2 rounded-2xl border border-zinc-800 shadow-glow flex flex-col gap-1">
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 px-2 py-1">Pilih Jalur Asesmen</span>
+                  {(["UTBK", "CPNS", "REKRUTMEN", "DEWAN_RI", "DOSEN"] as Track[]).map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => changeTrack(t)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between ${
+                        track === t
+                          ? "bg-indigo-600 text-white"
+                          : "text-zinc-300 hover:bg-zinc-800/60"
+                      }`}
+                    >
+                      <span>{trackLabels[t].label}</span>
+                      {track === t && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Pro Status Toggle */}
             <button
               onClick={togglePro}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 ${
+              className={`px-2 sm:px-2.5 py-1 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
                 isPro
-                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-glow"
+                  ? "bg-amber-500/15 text-amber-400 border-amber-500/40 shadow-glow"
                   : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700"
               }`}
               title="Klik untuk toggle status Pro/Free"
             >
-              <Crown className={`w-3.5 h-3.5 ${isPro ? "text-amber-400 fill-amber-400" : "text-zinc-500"}`} />
-              {isPro ? "PRO" : "Free"}
+              <Crown className={`w-3.5 h-3.5 ${isPro ? "text-amber-400 fill-amber-400" : "text-zinc-400"}`} />
+              <span className="text-[11px] font-mono">{isPro ? "PRO" : "Free"}</span>
             </button>
           </div>
 

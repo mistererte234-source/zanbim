@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Timer, Flag, ArrowRight, ArrowLeft, Sparkles, RefreshCw } from "lucide-react";
+import { Timer, Flag, ArrowRight, ArrowLeft, Sparkles, RefreshCw, CheckCircle2 } from "lucide-react";
 
 function DiagnosisContent() {
   const router = useRouter();
@@ -13,7 +13,7 @@ function DiagnosisContent() {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, { choice: string; timeMs: number }>>({});
+  const [answers, setAnswers] = useState<Record<string, { selectedOption: string; timeMs: number }>>({});
   const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [timeLeft, setTimeLeft] = useState(35 * 60);
 
@@ -51,7 +51,7 @@ function DiagnosisContent() {
 
     setAnswers((prev) => ({
       ...prev,
-      [item.id]: { choice, timeMs: 30000 },
+      [item.id]: { selectedOption: choice, timeMs: 30000 },
     }));
   };
 
@@ -74,6 +74,7 @@ function DiagnosisContent() {
         }),
       });
       const data = await res.json();
+      sessionStorage.setItem("zanbim_last_report", JSON.stringify(data));
       localStorage.setItem("zanbim_diagnosis_result", JSON.stringify(data));
       router.push(`/report?track=${track}`);
     } catch (err) {
@@ -92,40 +93,41 @@ function DiagnosisContent() {
   // Brief Screen
   if (!started) {
     return (
-      <div className="max-w-xl mx-auto py-12 px-4 flex flex-col gap-6">
-        <div className="glass-panel p-8 rounded-3xl border border-indigo-500/30 flex flex-col gap-6 text-center shadow-glow">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 mx-auto">
-            <Sparkles className="w-8 h-8 text-indigo-400" />
+      <div className="max-w-xl mx-auto py-6 sm:py-12 px-2 flex flex-col gap-6">
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-indigo-500/30 flex flex-col gap-6 text-center shadow-glow">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 mx-auto shadow-glow">
+            <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-extrabold text-white">Tes Diagnosis ZanBimbel {track}</h1>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Sesi diagnosis bertujuan mengukur indeks baseline awal dan mendeteksi 3 skill gap terbesar lo saat ini.
+            <span className="text-[11px] font-bold text-indigo-400 tracking-wider uppercase">Sesi Diagnosis Adaptif</span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Tes Diagnosis {track}</h1>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-md mx-auto">
+              Sesi diagnosis ini bertujuan mengukur baseline kemampuan awal dan mendeteksi 3 skill gap prioritas Anda.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-left text-xs">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 bg-zinc-900/60 p-3.5 sm:p-4 rounded-2xl border border-zinc-800 text-center text-xs">
             <div>
-              <span className="text-zinc-500 block font-semibold">Durasi</span>
-              <span className="text-white font-bold text-sm">35 - 40 Menit</span>
+              <span className="text-zinc-500 block font-semibold text-[10px] sm:text-xs">Durasi</span>
+              <span className="text-white font-bold text-xs sm:text-sm">35 Mnt</span>
             </div>
             <div>
-              <span className="text-zinc-500 block font-semibold">Soal</span>
-              <span className="text-white font-bold text-sm">{items.length} Items</span>
+              <span className="text-zinc-500 block font-semibold text-[10px] sm:text-xs">Soal</span>
+              <span className="text-white font-bold text-xs sm:text-sm">{items.length} Butir</span>
             </div>
             <div>
-              <span className="text-zinc-500 block font-semibold">Kunci</span>
-              <span className="text-amber-400 font-bold text-sm">Disimpan di Akhir</span>
+              <span className="text-zinc-500 block font-semibold text-[10px] sm:text-xs">Hasil</span>
+              <span className="text-amber-400 font-bold text-xs sm:text-sm">Instan</span>
             </div>
           </div>
 
           <button
             onClick={() => setStarted(true)}
             disabled={loading || items.length === 0}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold text-base shadow-glow hover:opacity-95 transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-bold text-sm sm:text-base shadow-glow active:scale-[0.985] transition-all flex items-center justify-center gap-2"
           >
-            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : "Mulai Tes Diagnosis"}
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : "Mulai Tes Diagnosis Sekarang"}
           </button>
         </div>
       </div>
@@ -135,39 +137,39 @@ function DiagnosisContent() {
   const currentItem = items[currentIndex];
   if (!currentItem) return null;
 
-  const currentAnswer = answers[currentItem.id]?.choice;
+  const currentAnswer = answers[currentItem.id]?.selectedOption;
   const isFlagged = flags[currentItem.id];
 
   return (
-    <div className="max-w-4xl mx-auto py-4 px-2 flex flex-col gap-6">
+    <div className="max-w-3xl mx-auto py-2 sm:py-4 px-1 sm:px-2 flex flex-col gap-4 sm:gap-6">
       
-      {/* Top Header */}
-      <div className="glass-panel p-4 rounded-2xl border border-zinc-800 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 rounded-lg">
-            Soal {currentIndex + 1} / {items.length}
+      {/* Top Header Controls (Mobile-First) */}
+      <div className="glass-panel p-3 sm:p-4 rounded-2xl border border-zinc-800 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-1 rounded-xl">
+            {currentIndex + 1} / {items.length}
           </span>
-          <span className="text-xs text-zinc-400 font-medium hidden sm:inline-block">
-            Subtes: <strong className="text-white">{currentItem.subtest}</strong>
+          <span className="text-[11px] text-zinc-400 font-medium truncate max-w-[120px] sm:max-w-none">
+            {currentItem.subtest}
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-amber-400 font-mono font-bold text-sm bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-lg">
-            <Timer className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 text-amber-400 font-mono font-bold text-xs sm:text-sm bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-xl">
+            <Timer className="w-3.5 h-3.5" />
             {formatTime(timeLeft)}
           </div>
 
           <button
             onClick={toggleFlag}
-            className={`p-2 rounded-lg border transition-all ${
+            className={`p-2 rounded-xl border transition-all active:scale-95 ${
               isFlagged
-                ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
+                ? "bg-rose-500/20 border-rose-500/40 text-rose-400 shadow-glow"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
             }`}
             title="Ragu-ragu (Flag)"
           >
-            <Flag className="w-4 h-4" />
+            <Flag className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -181,19 +183,20 @@ function DiagnosisContent() {
       </div>
 
       {/* Question Card */}
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-zinc-800 flex flex-col gap-6">
-        <div className="flex flex-col gap-3">
+      <div className="glass-panel p-4 sm:p-7 rounded-3xl border border-zinc-800 flex flex-col gap-4 sm:gap-6 shadow-sm">
+        <div className="flex flex-col gap-2.5">
           {currentItem.stimulus && (
-            <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-300 italic whitespace-pre-line leading-relaxed">
+            <div className="p-3 sm:p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-300 italic whitespace-pre-line leading-relaxed">
               {currentItem.stimulus}
             </div>
           )}
-          <p className="text-base sm:text-lg font-medium text-white whitespace-pre-line leading-relaxed">
+          <p className="text-sm sm:text-base font-medium text-white whitespace-pre-line leading-relaxed">
             {currentItem.stem}
           </p>
         </div>
 
-        <div className="flex flex-col gap-3">
+        {/* Options List (iOS Touch Target friendly) */}
+        <div className="flex flex-col gap-2.5">
           {(["A", "B", "C", "D", "E"] as const).map((key) => {
             const optionText = currentItem.options[key];
             if (!optionText) return null;
@@ -204,52 +207,52 @@ function DiagnosisContent() {
               <button
                 key={key}
                 onClick={() => handleChoiceSelect(key)}
-                className={`w-full p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
+                className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all active:scale-[0.99] flex items-start gap-3 ${
                   isSelected
-                    ? "bg-indigo-950/60 border-indigo-500 text-white shadow-glow"
-                    : "glass-panel border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/60"
+                    ? "bg-indigo-950/70 border-indigo-500 text-white shadow-glow"
+                    : "bg-zinc-900/40 border-zinc-800/80 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/70"
                 }`}
               >
                 <span
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center font-mono font-bold text-xs shrink-0 ${
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 transition-colors ${
                     isSelected ? "bg-indigo-600 text-white" : "bg-zinc-800 text-zinc-400"
                   }`}
                 >
                   {key}
                 </span>
-                <span className="text-sm font-normal pt-0.5 leading-relaxed">{optionText}</span>
+                <span className="text-xs sm:text-sm font-normal pt-1 leading-relaxed">{optionText}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between gap-4">
+      {/* Sticky Bottom Actions */}
+      <div className="flex items-center justify-between gap-3 pt-2">
         <button
           onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
           disabled={currentIndex === 0}
-          className="px-5 py-2.5 rounded-xl glass-panel text-zinc-400 font-semibold text-xs disabled:opacity-30 hover:text-white transition-all flex items-center gap-2"
+          className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl glass-panel text-zinc-400 font-semibold text-xs disabled:opacity-25 hover:text-white transition-all active:scale-95 flex items-center gap-1.5"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Sebelumnya
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span className="hidden xs:inline">Sebelumnya</span>
         </button>
 
         {currentIndex < items.length - 1 ? (
           <button
             onClick={() => setCurrentIndex((prev) => prev + 1)}
-            className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-glow hover:bg-indigo-500 transition-all flex items-center gap-2"
+            className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-indigo-600 text-white font-bold text-xs sm:text-sm shadow-glow active:scale-95 transition-all flex items-center gap-1.5"
           >
             Berikutnya
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         ) : (
           <button
             onClick={handleSubmitDiagnosis}
             disabled={loading}
-            className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-500 text-white font-bold text-xs shadow-glow hover:opacity-95 transition-all flex items-center gap-2"
+            className="px-5 sm:px-7 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-500 text-white font-bold text-xs sm:text-sm shadow-glow active:scale-95 transition-all flex items-center gap-1.5"
           >
-            {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Selesaikan Tes & Lihat Laporan"}
+            {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Selesai & Lihat Laporan"}
           </button>
         )}
       </div>

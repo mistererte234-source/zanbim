@@ -1,8 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SplashScreen } from "@/components/layout/SplashScreen";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#09090B",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://zanbim.vercel.app"),
@@ -46,13 +56,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className="dark">
-      <body className="min-h-screen flex flex-col bg-[#09090B] text-zinc-100 antialiased">
+      <body className="min-h-screen flex flex-col bg-[#09090B] text-zinc-100 antialiased selection:bg-indigo-500 selection:text-white">
         <SplashScreen />
         <Navbar />
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 md:pb-8">
           {children}
         </main>
         <Footer />
+        <BottomTabBar />
       </body>
     </html>
   );
