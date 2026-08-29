@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Target, BookOpen, Sparkles, ShieldAlert } from "lucide-react";
+import { Compass, Target, BookOpen, Sparkles, UserCheck } from "lucide-react";
 
 export function BottomTabBar() {
   const pathname = usePathname();
@@ -12,7 +12,7 @@ export function BottomTabBar() {
     { href: "/diagnosis", label: "Diagnosis", icon: Target },
     { href: "/drill", label: "Drill", icon: BookOpen },
     { href: "/tryout", label: "Tryout", icon: Sparkles },
-    { href: "/admin", label: "Admin", icon: ShieldAlert },
+    { href: "/onboarding", label: "Target", icon: UserCheck },
   ];
 
   return (

@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { PrayerTimesBottomWidget } from "@/components/layout/PrayerTimesBottomWidget";
+import { VisitorTracker } from "@/components/analytics/VisitorTracker";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -59,6 +60,7 @@ export default function RootLayout({
     <html lang="id" className="dark">
       <body className="min-h-screen flex flex-col bg-[#09090B] text-zinc-100 antialiased selection:bg-indigo-500 selection:text-white">
         <SplashScreen />
+        <VisitorTracker />
         <Navbar />
         <main className="flex-1 w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 pb-6">
           {children}

@@ -1,17 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Sparkles, Compass, Target, BookOpen, Crown, ShieldAlert, ChevronDown, Layers } from "lucide-react";
-import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Sparkles, Compass, Target, BookOpen, Crown, ChevronDown, Layers, Lock, KeyRound, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { SignatureBar } from "./SignatureBar";
 import { Track } from "@/lib/types";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [track, setTrack] = useState<Track>("UTBK");
   const [isPro, setIsPro] = useState<boolean>(false);
   const [showMobileTrackMenu, setShowMobileTrackMenu] = useState<boolean>(false);
+
+  // 7x Click Secret Admin Gate
+  const [logoClickCount, setLogoClickCount] = useState<number>(0);
+  const [showPinModal, setShowPinModal] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState<string>("");
+  const [pinError, setPinError] = useState<boolean>(false);
+  const clickTimeoutRef = useRef<any>(null);
 
   useEffect(() => {
     const savedTrack = (localStorage.getItem("zanbim_track") as Track) || "UTBK";
@@ -27,6 +35,37 @@ export function Navbar() {
     window.addEventListener("zanbim_track_changed", handleTrackChange);
     return () => window.removeEventListener("zanbim_track_changed", handleTrackChange);
   }, [pathname]);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    setLogoClickCount((prev) => {
+      const newCount = prev + 1;
+      if (newCount >= 7) {
+        setShowPinModal(true);
+        setPinInput("");
+        setPinError(false);
+        return 0;
+      }
+      return newCount;
+    });
+
+    clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      setLogoClickCount(0);
+    }, 3000);
+  };
+
+  const handlePinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pinInput === "Zanbim@2026!") {
+      sessionStorage.setItem("zanbim_admin_unlocked", "true");
+      setShowPinModal(false);
+      router.push("/admin");
+    } else {
+      setPinError(true);
+    }
+  };
 
   const togglePro = () => {
     const nextPro = !isPro;
@@ -52,15 +91,19 @@ export function Navbar() {
 
   return (
     <>
-      {/* Signature Bar: Tanggal Jawa & Jadwal Sholat */}
+      {/* Signature Bar: Tanggal Jawa */}
       <SignatureBar />
 
       <header className="sticky top-0 z-40 w-full glass-panel border-b border-border/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
           
-          {/* Brand Logo with Custom Logo.png */}
-          <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-glow overflow-hidden">
+          {/* Brand Logo with 7x Click Secret Action */}
+          <div
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 sm:gap-3 group shrink-0 cursor-pointer select-none"
+            title="ZanBimbel"
+          >
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-glow overflow-hidden active:scale-95 transition-transform">
               <div className="w-full h-full bg-background rounded-[11px] flex items-center justify-center overflow-hidden">
                 <img
                   src="/logo.png"
@@ -78,7 +121,7 @@ export function Navbar() {
               </span>
               <span className="text-[9px] text-zinc-400 font-medium tracking-wide hidden xs:inline">Adaptive Learning AI</span>
             </div>
-          </Link>
+          </div>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-1 bg-zinc-900/60 p-1.5 rounded-full border border-zinc-800/80">
@@ -125,17 +168,6 @@ export function Navbar() {
             >
               <Sparkles className="w-3.5 h-3.5" />
               Tryout
-            </Link>
-            <Link
-              href="/admin"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                pathname.startsWith("/admin")
-                  ? "bg-indigo-600 text-white shadow-glow"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-              }`}
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
-              Admin
             </Link>
           </nav>
 
@@ -209,6 +241,60 @@ export function Navbar() {
 
         </div>
       </header>
+
+      {/* Secret PIN Modal (Triggered by 7x Logo Click) */}
+      {showPinModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-panel p-6 rounded-3xl border border-indigo-500/40 max-w-sm w-full shadow-glow flex flex-col gap-4 relative animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowPinModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+                <Lock className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-white text-base">Portal Rahasia Admin</h3>
+                <p className="text-xs text-zinc-400">Masukkan PIN Keamanan</p>
+              </div>
+            </div>
+
+            <form onSubmit={handlePinSubmit} className="flex flex-col gap-3">
+              <div className="relative">
+                <input
+                  type="password"
+                  value={pinInput}
+                  onChange={(e) => {
+                    setPinInput(e.target.value);
+                    setPinError(false);
+                  }}
+                  placeholder="Ketik PIN..."
+                  autoFocus
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono tracking-wider"
+                />
+                <KeyRound className="w-4 h-4 text-zinc-500 absolute right-3.5 top-3.5" />
+              </div>
+
+              {pinError && (
+                <p className="text-xs text-rose-400 font-medium">
+                  ❌ PIN salah! Akses ditolak.
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-bold text-xs shadow-glow hover:opacity-95 active:scale-95 transition-all"
+              >
+                Buka Dashboard Admin
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
